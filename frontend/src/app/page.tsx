@@ -249,9 +249,9 @@ export default function HomePage() {
                 </details>
               </li>
               <li>
-                <a href="#features" onClick={closeDropdownsAndMenu}>
+                <Link href="/race-data" onClick={closeDropdownsAndMenu}>
                   경주데이터
-                </a>
+                </Link>
               </li>
               <li>
                 <details className="nav-dropdown" onToggle={handleDropdownToggle}>
