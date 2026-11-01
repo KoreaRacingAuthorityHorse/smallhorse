@@ -249,6 +249,11 @@ export default function HomePage() {
                 </details>
               </li>
               <li>
+                <a href="#features" onClick={closeDropdownsAndMenu}>
+                  경주데이터
+                </a>
+              </li>
+              <li>
                 <details className="nav-dropdown" onToggle={handleDropdownToggle}>
                   <summary>
                     모의베팅 <span className="chevron"></span>
