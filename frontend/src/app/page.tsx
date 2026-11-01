@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 interface Race {
   id: string;
@@ -28,11 +30,9 @@ const sampleRaces: Race[] = [
 export default function HomePage() {
   const [raceType, setRaceType] = useState<"upcoming" | "past">("upcoming");
   const [venue, setVenue] = useState<string>("all");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedRace, setSelectedRace] = useState<Race | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const navShellRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const trackFillRef = useRef<HTMLSpanElement>(null);
   const journeySectionRef = useRef<HTMLElement>(null);
@@ -42,25 +42,11 @@ export default function HomePage() {
     setIsModalOpen(false);
   }, []);
 
-  // Close dropdown details when clicking outside or pressing Escape
+  // Close modal on Escape and keep focus inside it
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (navShellRef.current && !navShellRef.current.contains(e.target as Node)) {
-        const detailsList = navShellRef.current.querySelectorAll("details");
-        detailsList.forEach((d) => (d.open = false));
-      }
-    }
-
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setMobileMenuOpen(false);
-        if (navShellRef.current) {
-          const detailsList = navShellRef.current.querySelectorAll("details");
-          detailsList.forEach((d) => (d.open = false));
-        }
-        if (isModalOpen) {
-          closeModal();
-        }
+      if (e.key === "Escape" && isModalOpen) {
+        closeModal();
       }
 
       if (isModalOpen && modalRef.current && e.key === "Tab") {
@@ -81,10 +67,8 @@ export default function HomePage() {
       }
     }
 
-    document.addEventListener("click", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isModalOpen, closeModal]);
@@ -168,165 +152,14 @@ export default function HomePage() {
 
   const raceName = (r: Race) => `${r.venue} 제${Number(r.round)}경주`;
 
-  const handleDropdownToggle = (e: React.SyntheticEvent<HTMLDetailsElement>) => {
-    const target = e.currentTarget;
-    if (target.open && navShellRef.current) {
-      const allDetails = navShellRef.current.querySelectorAll("details");
-      allDetails.forEach((d) => {
-        if (d !== target) d.open = false;
-      });
-    }
-  };
-
-  const closeDropdownsAndMenu = () => {
-    if (navShellRef.current) {
-      const allDetails = navShellRef.current.querySelectorAll("details");
-      allDetails.forEach((d) => (d.open = false));
-    }
-    setMobileMenuOpen(false);
-  };
-
   const handleViewChange = (type: "upcoming" | "past") => {
     setRaceType(type);
     setVenue("all");
-    closeDropdownsAndMenu();
   };
 
   return (
     <div data-page="home" className="landing-root">
-      {/* Top Announcement */}
-      <div className="announce">
-        <div className="container announce-inner">
-          <span className="announce-led"></span>
-          <span>THE RACE STARTS HERE</span>
-          <span className="announce-separator"></span>
-          <span>공공데이터 기반 경마 정보 · 가상 포인트 모의베팅</span>
-          <span className="announce-right">
-            DESIGN PROTOTYPE <span>◆</span> SAMPLE DATA
-          </span>
-        </div>
-      </div>
-
-      {/* Site Header */}
-      <header className="site-header" id="top">
-        <div className="container nav-shell" ref={navShellRef}>
-          <Link className="brand" href="/" aria-label="트랙온 홈" onClick={closeDropdownsAndMenu}>
-            <span className="brand-emblem" aria-hidden="true">
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
-            <span className="brand-word">
-              TRACK<span>:ON</span>
-            </span>
-          </Link>
-
-          <nav aria-label="주요 메뉴">
-            <ul className={`nav-menu ${mobileMenuOpen ? "open" : ""}`} id="navMenu">
-              <li>
-                <details className="nav-dropdown" onToggle={handleDropdownToggle}>
-                  <summary>
-                    경주정보 <span className="chevron"></span>
-                  </summary>
-                  <div className="dropdown-panel">
-                    <a
-                      href="#races"
-                      onClick={() => {
-                        handleViewChange("upcoming");
-                      }}
-                    >
-                      예정된 경주<small>경주 일정 및 출전 정보</small>
-                    </a>
-                    <a
-                      href="#races"
-                      onClick={() => {
-                        handleViewChange("past");
-                      }}
-                    >
-                      지난 경주<small>이전 경주 기록 살펴보기</small>
-                    </a>
-                  </div>
-                </details>
-              </li>
-              <li>
-                <Link href="/race-data" onClick={closeDropdownsAndMenu}>
-                  경주데이터
-                </Link>
-              </li>
-              <li>
-                <details className="nav-dropdown" onToggle={handleDropdownToggle}>
-                  <summary>
-                    모의베팅 <span className="chevron"></span>
-                  </summary>
-                  <div className="dropdown-panel">
-                    <a
-                      href="#races"
-                      onClick={() => {
-                        handleViewChange("upcoming");
-                      }}
-                    >
-                      예정 경주 예측<small>경주 전 결과 예측하기</small>
-                    </a>
-                    <a
-                      href="#races"
-                      onClick={() => {
-                        handleViewChange("past");
-                      }}
-                    >
-                      지난 경주 도전<small>이전 경주로 연습하기</small>
-                    </a>
-                  </div>
-                </details>
-              </li>
-              <li>
-                <details className="nav-dropdown" onToggle={handleDropdownToggle}>
-                  <summary>
-                    이용가이드 <span className="chevron"></span>
-                  </summary>
-                  <div className="dropdown-panel">
-                    <Link href="/tutorial" onClick={closeDropdownsAndMenu}>
-                      시작하기<small>모의베팅 4단계</small>
-                    </Link>
-                    <Link href="/tutorial#bet-types" onClick={closeDropdownsAndMenu}>
-                      승식 안내<small>단승·연승·복승 등</small>
-                    </Link>
-                    <a href="#points" onClick={closeDropdownsAndMenu}>
-                      포인트 정책<small>모의베팅 보상 안내</small>
-                    </a>
-                  </div>
-                </details>
-              </li>
-              <li>
-                <a href="#ranking" onClick={closeDropdownsAndMenu}>
-                  랭킹
-                </a>
-              </li>
-            </ul>
-          </nav>
-
-          <div className="nav-actions">
-            <Link className="login-link" href="/login">
-              Google 로그인
-            </Link>
-            <Link href="/login" className="button button-red button-small">
-              시작하기 <span aria-hidden="true">↗</span>
-            </Link>
-          </div>
-
-          <button
-            className="mobile-toggle"
-            id="mobileToggle"
-            aria-expanded={mobileMenuOpen}
-            aria-controls="navMenu"
-            aria-label={mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-        </div>
-      </header>
+      <SiteHeader onRaceViewChange={handleViewChange} />
 
       <main>
         {/* Hero Section */}
@@ -1037,52 +870,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="footer">
-        <div className="container">
-          <div className="footer-upper">
-            <div>
-              <Link className="brand brand-white" href="/">
-                <span className="brand-emblem">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </span>
-                <span className="brand-word">
-                  TRACK<span>:ON</span>
-                </span>
-              </Link>
-              <p>
-                경주 정보를 이해하고 예측의 즐거움을 경험하는
-                <br />
-                가상 포인트 기반 모의베팅 플랫폼.
-              </p>
-            </div>
-            <div className="footer-nav">
-              <div>
-                <span>PLATFORM</span>
-                <a href="#races" onClick={() => handleViewChange("upcoming")}>
-                  경주정보
-                </a>
-                <a href="#modes">모의베팅</a>
-                <a href="#ranking">랭킹</a>
-              </div>
-              <div>
-                <span>SUPPORT</span>
-                <Link href="/tutorial">이용가이드</Link>
-                <a href="#points">포인트 정책</a>
-                <a href="#faq">자주 묻는 질문</a>
-              </div>
-            </div>
-          </div>
-          <div className="footer-lower">
-            <p>
-              © 2026 TRACK:ON. 비공식 프런트엔드 프로토타입 · API, Google 로그인, 베팅 제출, 포인트 적립 미연동. 실제 마권 및 현금 거래 없음.
-            </p>
-            <span>MADE FOR THE RACE / 2026</span>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter onRacesClick={() => handleViewChange("upcoming")} />
 
       {/* Race Detail Modal */}
       <div

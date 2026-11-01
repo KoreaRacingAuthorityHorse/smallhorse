@@ -21,17 +21,19 @@
   --rd-t-low: #c5b9ad;
 
   .num { font-variant-numeric: tabular-nums; }
+  button:disabled { opacity: .47; cursor: default; }
 
   /* Hero */
   .rd-hero { position: relative; overflow: hidden; background: #28211e; color: #fff; padding: 62px 0 58px; }
   .rd-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #221d1df2 30%, #221d1dc4 62%, #221d1d90), url('/assets/hero-race.jpg') center 40%/cover; }
   .rd-hero .container { position: relative; }
   .rd-hero h1 { font: 700 clamp(30px, 3.6vw, 46px)/1.4 var(--serif); margin: 18px 0 14px; letter-spacing: -.04em; }
+  .rd-hero .eyebrow { color: #e6c48a; letter-spacing: .28em; }
   .rd-hero p { font-size: 13px; color: #d4c5b8; line-height: 1.9; }
 
   /* Body & sub navigation */
   .rd-body { padding: 0 0 70px; font-size: 15px; line-height: 1.55; word-break: keep-all; }
-  .rd-subnav { position: sticky; top: 75px; z-index: 30; display: flex; gap: 2px; margin: 0 0 30px; background: var(--cream); border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+  .rd-subnav { position: sticky; top: 78px; z-index: 30; display: flex; gap: 2px; margin: 0 0 30px; background: var(--cream); border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
   .rd-subnav::-webkit-scrollbar { display: none; }
   .rd-subnav button { flex: none; border: 0; background: none; padding: 18px 18px 15px; margin-bottom: -1px; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 800; color: var(--muted); }
   .rd-subnav button:hover { color: var(--ink); }
@@ -344,8 +346,11 @@
     .rd-side { position: static; }
     .rd-hz-info { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
-  @media (max-width: 800px) {
-    .rd-subnav { top: 66px; }
+  @media (max-width: 900px) {
+    .rd-subnav { top: 69px; }
+  }
+  @media (max-width: 680px) {
+    .rd-subnav { top: 64px; }
   }
   @media (max-width: 720px) {
     .rd-bar { flex-wrap: wrap; padding: 8px; gap: 8px; }
@@ -367,7 +372,6 @@
     dialog.rd-drawer[open] { animation-name: rdSlideUp; }
   }
   @media (max-width: 580px) {
-    .rd-subnav { top: 62px; }
     .rd-subnav button { padding: 15px 12px 13px; }
     .rd-mtabs button { padding: 12px 2px; font-size: 14px; }
     .rd-more { padding-left: 16px; }
