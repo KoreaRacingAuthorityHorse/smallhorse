@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import RaceTab from "./_components/RaceTab";
@@ -17,8 +17,23 @@ const tabs = [
 
 type TabKey = (typeof tabs)[number]["key"];
 
+const isTabKey = (v: string): v is TabKey => tabs.some((t) => t.key === v);
+
 export default function RaceDataPage() {
-  const [tab, setTab] = useState<TabKey>("race");
+  // 헤더 드롭다운(/race-data#people 등)과 탭 선택을 URL 해시로 맞춤
+  const hash = useSyncExternalStore(
+    (callback) => {
+      const onHashChange = () => {
+        window.scrollTo({ top: 0 });
+        callback();
+      };
+      window.addEventListener("hashchange", onHashChange);
+      return () => window.removeEventListener("hashchange", onHashChange);
+    },
+    () => window.location.hash.slice(1),
+    () => "",
+  );
+  const tab: TabKey = isTabKey(hash) ? hash : "race";
 
   return (
     <div data-page="race-data" className="landing-root">
@@ -36,14 +51,9 @@ export default function RaceDataPage() {
         <div className="container rd-body">
           <nav className="rd-subnav" aria-label="경주데이터 보기">
             {tabs.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                aria-current={tab === t.key ? "page" : undefined}
-                onClick={() => { setTab(t.key); window.scrollTo({ top: 0 }); }}
-              >
+              <a key={t.key} href={`#${t.key}`} aria-current={tab === t.key ? "page" : undefined}>
                 {t.label}
-              </button>
+              </a>
             ))}
           </nav>
 

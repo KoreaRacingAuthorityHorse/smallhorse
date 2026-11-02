@@ -123,13 +123,25 @@ export default function SiteHeader({ onRaceViewChange }: SiteHeaderProps) {
                 </details>
               </li>
               <li>
-                <Link
-                  href="/race-data"
-                  aria-current={pathname.startsWith("/race-data") ? "page" : undefined}
-                  onClick={closeDropdownsAndMenu}
-                >
-                  경주데이터
-                </Link>
+                <details className="nav-dropdown" onToggle={handleDropdownToggle}>
+                  <summary aria-current={pathname.startsWith("/race-data") ? "page" : undefined}>
+                    경주데이터 <span className="chevron"></span>
+                  </summary>
+                  <div className="dropdown-panel">
+                    <a href="/race-data#race" onClick={closeDropdownsAndMenu}>
+                      경주<small>출전표·결과·구간별 순위·배당률</small>
+                    </a>
+                    <a href="/race-data#people" onClick={closeDropdownsAndMenu}>
+                      기수·조교사<small>통산 성적과 최근 10경기</small>
+                    </a>
+                    <a href="/race-data#horse" onClick={closeDropdownsAndMenu}>
+                      경주마<small>혈통·성적·몸 상태</small>
+                    </a>
+                    <a href="/race-data#data" onClick={closeDropdownsAndMenu}>
+                      데이터 소개<small>제공 데이터와 API 안내</small>
+                    </a>
+                  </div>
+                </details>
               </li>
               <li>
                 <details className="nav-dropdown" onToggle={handleDropdownToggle}>

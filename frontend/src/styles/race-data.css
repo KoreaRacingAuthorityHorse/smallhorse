@@ -35,9 +35,9 @@
   .rd-body { padding: 0 0 70px; font-size: 15px; line-height: 1.55; word-break: keep-all; }
   .rd-subnav { position: sticky; top: 78px; z-index: 30; display: flex; gap: 2px; margin: 0 0 30px; background: var(--cream); border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
   .rd-subnav::-webkit-scrollbar { display: none; }
-  .rd-subnav button { flex: none; border: 0; background: none; padding: 18px 18px 15px; margin-bottom: -1px; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 800; color: var(--muted); }
-  .rd-subnav button:hover { color: var(--ink); }
-  .rd-subnav button[aria-current="page"] { color: var(--wine); border-bottom-color: var(--wine); }
+  .rd-subnav a { flex: none; border: 0; background: none; padding: 18px 18px 15px; margin-bottom: -1px; border-bottom: 2px solid transparent; font-size: 14px; font-weight: 800; color: var(--muted); }
+  .rd-subnav a:hover { color: var(--ink); }
+  .rd-subnav a[aria-current="page"] { color: var(--wine); border-bottom-color: var(--wine); }
   .rd-demo { font-size: 12px; color: var(--rd-faint); margin-top: 48px; text-align: center; }
 
   .rd-ph { margin-bottom: 18px; }
@@ -372,7 +372,7 @@
     dialog.rd-drawer[open] { animation-name: rdSlideUp; }
   }
   @media (max-width: 580px) {
-    .rd-subnav button { padding: 15px 12px 13px; }
+    .rd-subnav a { padding: 15px 12px 13px; }
     .rd-mtabs button { padding: 12px 2px; font-size: 14px; }
     .rd-more { padding-left: 16px; }
     .rd-hz-prof { padding: 20px; }
