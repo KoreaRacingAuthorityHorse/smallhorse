@@ -105,6 +105,8 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline-color:#af8759
 .race-card-footer{background:#fbf7f1;border-color:#ece2da}
 .race-card-footer button{background:#71192b;color:white;border-color:#71192b}
 .race-card-footer button:hover{background:#511121}
+.race-card-footer .race-link{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border-radius:3px;background:#71192b;color:#fffdfa;font-size:10px;font-weight:800;white-space:nowrap;transition:background .2s}
+.race-card-footer .race-link:hover{background:#511121}
 .sample-strip{background:#f5efe6;border-color:#e9dfd2;color:#766b64}
 .sample-icon{background:#b59664;color:#fffdfa}
 .modes-section{background:#221b1d}

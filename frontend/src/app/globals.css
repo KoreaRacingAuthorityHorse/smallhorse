@@ -81,3 +81,7 @@ ul {
   margin: 0;
   padding: 0;
 }
+
+.dashboard .race-card-actions.single {
+  grid-template-columns: 1fr;
+}

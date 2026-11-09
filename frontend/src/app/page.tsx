@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { getRaces } from "@/data/races";
+import type { RaceStatus } from "@/types/racing";
 
 interface Race {
   id: string;
@@ -12,35 +14,30 @@ interface Race {
   time: string;
   horses: number;
   distance: string;
+  status: RaceStatus;
 }
 
-const sampleRaces: Race[] = [
-  { id: "u1", type: "upcoming", venue: "서울", round: "07", date: "2026.10.31 (토)", time: "14:35", horses: 12, distance: "1,400m" },
-  { id: "u2", type: "upcoming", venue: "부산경남", round: "04", date: "2026.10.30 (금)", time: "13:15", horses: 10, distance: "1,200m" },
-  { id: "u3", type: "upcoming", venue: "제주", round: "03", date: "2026.10.30 (금)", time: "14:30", horses: 9, distance: "1,000m" },
-  { id: "u4", type: "upcoming", venue: "서울", round: "08", date: "2026.11.01 (일)", time: "15:10", horses: 11, distance: "1,600m" },
-  { id: "p1", type: "past", venue: "서울", round: "05", date: "2026.10.25 (일)", time: "13:40", horses: 11, distance: "1,300m" },
-  { id: "p2", type: "past", venue: "부산경남", round: "06", date: "2026.10.23 (금)", time: "15:20", horses: 12, distance: "1,400m" },
-  { id: "p3", type: "past", venue: "제주", round: "02", date: "2026.10.24 (토)", time: "12:05", horses: 10, distance: "1,000m" },
-  { id: "p4", type: "past", venue: "서울", round: "04", date: "2026.10.24 (토)", time: "12:35", horses: 12, distance: "1,200m" },
-];
+const sampleRaces: Race[] = getRaces().map((race) => ({
+  id: race.id,
+  type: race.status === "FINISHED" ? "past" : "upcoming",
+  venue: { SEOUL: "서울", BUSAN: "부산경남", JEJU: "제주" }[race.trackCode],
+  round: String(race.raceNo).padStart(2, "0"),
+  date: `${race.raceDate.replaceAll("-", ".")} (${["일", "월", "화", "수", "목", "금", "토"][new Date(`${race.raceDate}T00:00:00Z`).getUTCDay()]})`,
+  time: race.startTime,
+  horses: race.entryCount,
+  distance: `${race.distance.toLocaleString()}m`,
+  status: race.status,
+}));
+const statusLabels: Record<RaceStatus, string> = { SCHEDULED: "예정", OPEN: "구매 가능", CLOSED: "마감", CANCELLED: "취소", FINISHED: "종료" };
 
 export default function HomePage() {
   const [raceType, setRaceType] = useState<"upcoming" | "past">("upcoming");
   const [venue, setVenue] = useState<string>("all");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedRace, setSelectedRace] = useState<Race | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navShellRef = useRef<HTMLDivElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
   const trackFillRef = useRef<HTMLSpanElement>(null);
   const journeySectionRef = useRef<HTMLElement>(null);
-  const lastActiveElementRef = useRef<HTMLElement | null>(null);
-
-  const closeModal = useCallback(() => {
-    setIsModalOpen(false);
-  }, []);
 
   // Close dropdown details when clicking outside or pressing Escape
   useEffect(() => {
@@ -58,26 +55,6 @@ export default function HomePage() {
           const detailsList = navShellRef.current.querySelectorAll("details");
           detailsList.forEach((d) => (d.open = false));
         }
-        if (isModalOpen) {
-          closeModal();
-        }
-      }
-
-      if (isModalOpen && modalRef.current && e.key === "Tab") {
-        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled])'
-        );
-        if (focusable.length > 0) {
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-          if (e.shiftKey && document.activeElement === first) {
-            last.focus();
-            e.preventDefault();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            first.focus();
-            e.preventDefault();
-          }
-        }
       }
     }
 
@@ -87,22 +64,7 @@ export default function HomePage() {
       document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isModalOpen, closeModal]);
-
-  // Modal open/close body scroll lock
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.classList.add("modal-open");
-      if (modalRef.current) {
-        modalRef.current.focus();
-      }
-    } else {
-      document.body.classList.remove("modal-open");
-      if (lastActiveElementRef.current) {
-        lastActiveElementRef.current.focus();
-      }
-    }
-  }, [isModalOpen]);
+  }, []);
 
   // Progressive scroll reveal and journey track fill
   useEffect(() => {
@@ -159,12 +121,6 @@ export default function HomePage() {
   const filteredRaces = sampleRaces
     .filter((r) => r.type === raceType && (venue === "all" || r.venue === venue))
     .slice(0, 3);
-
-  const openModal = (race: Race, triggerEl: HTMLElement) => {
-    lastActiveElementRef.current = triggerEl;
-    setSelectedRace(race);
-    setIsModalOpen(true);
-  };
 
   const raceName = (r: Race) => `${r.venue} 제${Number(r.round)}경주`;
 
@@ -268,7 +224,7 @@ export default function HomePage() {
                         handleViewChange("past");
                       }}
                     >
-                      지난 경주 도전<small>이전 경주로 연습하기</small>
+                      지난 경주 보기<small>종료된 경주 살펴보기</small>
                     </a>
                   </div>
                 </details>
@@ -497,8 +453,8 @@ export default function HomePage() {
                           <span>R</span>
                         </div>
                       </div>
-                      <span className={`race-state ${r.type}`}>
-                        {r.type === "upcoming" ? "예정 경주" : "종료 경주"}
+                      <span className={`race-state ${r.status === "OPEN" ? "upcoming" : "past"}`}>
+                        {statusLabels[r.status]}
                       </span>
                     </div>
                     <h3>{raceName(r)}</h3>
@@ -511,15 +467,15 @@ export default function HomePage() {
                         <strong>
                           {r.distance} &nbsp; / &nbsp; {r.horses}두
                         </strong>
-                        <small>UI 데모용 가상 경주 데이터</small>
+                        <small>출전 정보는 예시 데이터입니다.</small>
                       </div>
-                      <button
-                        type="button"
+                      <Link
+                        className="race-link"
+                        href={`/races/${r.id}`}
                         data-open-race={r.id}
-                        onClick={(e) => openModal(r, e.currentTarget)}
                       >
-                        {r.type === "past" ? "연습하기" : "예측하기"} ↗
-                      </button>
+                        {r.status === "OPEN" ? "모의베팅" : "경주 보기"} ↗
+                      </Link>
                     </div>
                   </article>
                 ))
@@ -593,7 +549,7 @@ export default function HomePage() {
                 className="mode-card mode-past"
                 href="#races"
                 data-view="past"
-                aria-label="지난 경주 연습하기"
+                aria-label="지난 경주 살펴보기"
                 onClick={() => handleViewChange("past")}
               >
                 <div className="mode-image mode-image-past"></div>
@@ -601,7 +557,7 @@ export default function HomePage() {
                 <div className="mode-content">
                   <div className="mode-top">
                     <span className="mode-index">02 — PAST CHALLENGE</span>
-                    <span className="mode-tag">낮은 포인트 보상</span>
+                    <span className="mode-tag">종료 경주 정보</span>
                   </div>
                   <div className="mode-bottom">
                     <span className="mode-subtitle">REPLAY THE RACE</span>
@@ -610,7 +566,7 @@ export default function HomePage() {
                       <br />
                       다시 도전하다.
                     </h3>
-                    <p>이미 종료된 경주로 예측 감각을 연습해 보세요.</p>
+                    <p>종료된 경주의 출전 정보를 다시 살펴보세요.</p>
                     <span className="mode-link">
                       지난 경주 살펴보기 <span className="circle-arrow">↗</span>
                     </span>
@@ -619,7 +575,7 @@ export default function HomePage() {
               </a>
             </div>
             <p className="mode-disclaimer">
-              ※ 지난 경주는 실제 결과가 이미 공개되어 있습니다. 공정한 포인트·랭킹 운영 정책은 확정 전이며 현재는 화면 시안입니다.
+              ※ 지난 경주는 결과가 공개된 상태로, 모의베팅 구매는 제공하지 않습니다.
             </p>
           </div>
         </section>
@@ -1072,76 +1028,13 @@ export default function HomePage() {
           </div>
           <div className="footer-lower">
             <p>
-              © 2026 TRACK:ON. 비공식 프런트엔드 프로토타입 · API, Google 로그인, 베팅 제출, 포인트 적립 미연동. 실제 마권 및 현금 거래 없음.
+              © 2026 TRACK:ON. 비공식 프런트엔드 프로토타입 · API와 Google 로그인은 미연동입니다. 모의베팅 기록은 브라우저에 저장되며 실제 마권 및 현금 거래는 없습니다.
             </p>
             <span>MADE FOR THE RACE / 2026</span>
           </div>
         </div>
       </footer>
 
-      {/* Race Detail Modal */}
-      <div
-        className={`modal-backdrop ${isModalOpen ? "open" : ""}`}
-        id="raceModal"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) closeModal();
-        }}
-      >
-        <div
-          className="modal"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modalTitle"
-          tabIndex={-1}
-          ref={modalRef}
-        >
-          <button
-            className="modal-close"
-            type="button"
-            id="modalClose"
-            aria-label="닫기"
-            onClick={closeModal}
-          >
-            ×
-          </button>
-          <div className="modal-eyebrow">RACE PREVIEW / SAMPLE</div>
-          <h2 id="modalTitle">
-            {selectedRace?.type === "past" ? "지난 경주 연습" : "예정 경주 예측"}
-          </h2>
-          <p id="modalDescription">
-            {selectedRace?.type === "past"
-              ? "종료된 경주를 복기하는 연습 모드입니다. 실제 경주 결과가 공개되어 있으므로 향후 낮은 보상 비율과 별도의 공정성 규칙이 적용될 예정입니다."
-              : "아직 결과가 나오지 않은 경주를 예측하는 모드를 기획 중입니다. 실제 서비스에서는 공식 결과 확정 후 가상 포인트를 산정할 예정입니다."}
-          </p>
-          <div className="modal-info">
-            <div>
-              <strong id="modalRaceName">
-                {selectedRace ? raceName(selectedRace) : ""}
-              </strong>
-              <span id="modalRaceDetails">
-                {selectedRace
-                  ? `${selectedRace.date} · ${selectedRace.time} · ${selectedRace.horses}두 / 가상 샘플`
-                  : ""}
-              </span>
-            </div>
-            <span
-              className={`pill ${selectedRace?.type === "past" ? "pill-gray" : "pill-red"}`}
-              id="modalRaceStatus"
-            >
-              {selectedRace?.type === "past" ? "지난 경주" : "예정 경주"}
-            </span>
-          </div>
-          <div className="modal-actions">
-            <Link href="/tutorial" className="button button-outline" onClick={closeModal}>
-              먼저 배우기
-            </Link>
-            <Link href="/login" id="modalLogin" className="button button-red" onClick={closeModal}>
-              로그인 후 시작하기 ↗
-            </Link>
-          </div>
-          <small>실제 경주 선택과 모의베팅 기능은 현재 제공되지 않습니다.</small>
-        </div>
-      </div>
     </div>
   );
 }
