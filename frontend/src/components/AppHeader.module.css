@@ -1,0 +1,59 @@
+/* 헤더 "모의베팅" 하위 메뉴. 랜딩(landing.css)의 .nav-dropdown / .dropdown-panel과 같은 값.
+   landing.css는 [data-page="home"] 범위로만 적용되어 서비스 화면(.app-root)에서는 쓸 수 없어 따로 둔다. */
+
+.dropdown { position: relative; }
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #342e2b;
+  font-weight: 800;
+  font-size: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+  transition: color 0.2s;
+}
+.summary::-webkit-details-marker { display: none; }
+.summary:hover,
+.summary.active { color: var(--wine); }
+
+.chevron {
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-left: 2px;
+  margin-top: -4px;
+}
+
+.panel {
+  position: absolute;
+  top: 38px;
+  left: -18px;
+  width: 230px;
+  padding: 7px;
+  z-index: 60;
+  background: #fffdf9;
+  border: 1px solid #e8ded4;
+  border-radius: 6px;
+  box-shadow: 0 18px 50px #24181916;
+}
+.panel a {
+  display: block;
+  padding: 12px 11px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #342e2b;
+}
+.panel a:hover,
+.panel a[aria-current="page"] { background: #f7eded; color: var(--wine); }
+.panel small { display: block; margin-top: 5px; font-size: 10px; font-weight: 500; color: #84868a; }
+
+@media (max-width: 900px) {
+  .panel { position: static; width: 100%; box-shadow: none; padding: 4px; margin-top: 6px; }
+  .panel a { padding: 11px; }
+}
