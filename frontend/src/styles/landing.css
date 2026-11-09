@@ -154,13 +154,4 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline-color:#af8759
  .mode-card{border-color:#bba29555}
 }
 
-
-/* 지난 경주 카드의 "도전하기"는 페이지 이동 링크(a)라서 버튼과 같은 모양을 준다 */
-.race-card-footer a{background:#71192b;border-radius:3px;color:#fff;padding:11px 12px;font-size:10px;font-weight:800;white-space:nowrap;transition:background .2s}
-.race-card-footer a:hover{background:#511121}
-
-/* 블라인드 지난 경주 카드: 카드 어디를 눌러도 이동하도록 링크 영역을 카드 전체로 넓힌다 */
-.race-card.blind-card{position:relative;cursor:pointer}
-.blind-card .race-card-footer a::after{content:"";position:absolute;inset:0}
-
 }
