@@ -262,14 +262,9 @@ export default function HomePage() {
                     >
                       예정 경주 예측<small>경주 전 결과 예측하기</small>
                     </a>
-                    <a
-                      href="#races"
-                      onClick={() => {
-                        handleViewChange("past");
-                      }}
-                    >
+                    <Link href="/challenge/past" onClick={closeDropdownsAndMenu}>
                       지난 경주 도전<small>이전 경주로 연습하기</small>
-                    </a>
+                    </Link>
                   </div>
                 </details>
               </li>
@@ -487,42 +482,69 @@ export default function HomePage() {
 
             <div className="race-grid" id="raceGrid" aria-live="polite">
               {filteredRaces.length > 0 ? (
-                filteredRaces.map((r) => (
-                  <article key={r.id} className="race-card">
-                    <div className="race-card-head">
-                      <div>
-                        <div className="race-flag">{r.venue} / SAMPLE RACE</div>
-                        <div className="race-number">
-                          {r.round}
-                          <span>R</span>
+                filteredRaces.map((r) =>
+                  r.type === "past" ? (
+                    // 지난 경주는 블라인드 방식: 날짜·경주번호를 숨기고 경마장별 도전 페이지로 보낸다.
+                    // blind-card: 카드 어디를 눌러도 "도전하기" 링크로 이동(landing.css)
+                    <article key={r.id} className="race-card blind-card">
+                      <div className="race-card-head">
+                        <div>
+                          <div className="race-flag">{r.venue} / BLIND RACE</div>
+                          <div className="race-number">
+                            ??
+                            <span>R</span>
+                          </div>
                         </div>
+                        <span className="race-state past">종료 경주</span>
                       </div>
-                      <span className={`race-state ${r.type}`}>
-                        {r.type === "upcoming" ? "예정 경주" : "종료 경주"}
-                      </span>
-                    </div>
-                    <h3>{raceName(r)}</h3>
-                    <div className="race-meta">
-                      <span>{r.date}</span>
-                      <span>{r.time} 예정 시각 (예시)</span>
-                    </div>
-                    <div className="race-card-footer">
-                      <div>
-                        <strong>
-                          {r.distance} &nbsp; / &nbsp; {r.horses}두
-                        </strong>
-                        <small>UI 데모용 가상 경주 데이터</small>
+                      <h3>{r.venue} 지난 경주 도전</h3>
+                      <div className="race-meta">
+                        <span>날짜·마명 비공개</span>
+                        <span>결과는 베팅 후 공개</span>
                       </div>
-                      <button
-                        type="button"
-                        data-open-race={r.id}
-                        onClick={(e) => openModal(r, e.currentTarget)}
-                      >
-                        {r.type === "past" ? "연습하기" : "예측하기"} ↗
-                      </button>
-                    </div>
-                  </article>
-                ))
+                      <div className="race-card-footer">
+                        <div>
+                          <strong>실제 지난 경주 기록</strong>
+                          <small>가상 포인트로 연습하는 블라인드 모의베팅</small>
+                        </div>
+                        <Link href={`/challenge/past?venue=${encodeURIComponent(r.venue)}`}>도전하기 ↗</Link>
+                      </div>
+                    </article>
+                  ) : (
+                    <article key={r.id} className="race-card">
+                      <div className="race-card-head">
+                        <div>
+                          <div className="race-flag">{r.venue} / SAMPLE RACE</div>
+                          <div className="race-number">
+                            {r.round}
+                            <span>R</span>
+                          </div>
+                        </div>
+                        <span className={`race-state ${r.type}`}>예정 경주</span>
+                      </div>
+                      <h3>{raceName(r)}</h3>
+                      <div className="race-meta">
+                        <span>{r.date}</span>
+                        <span>{r.time} 예정 시각 (예시)</span>
+                      </div>
+                      <div className="race-card-footer">
+                        <div>
+                          <strong>
+                            {r.distance} &nbsp; / &nbsp; {r.horses}두
+                          </strong>
+                          <small>UI 데모용 가상 경주 데이터</small>
+                        </div>
+                        <button
+                          type="button"
+                          data-open-race={r.id}
+                          onClick={(e) => openModal(r, e.currentTarget)}
+                        >
+                          예측하기 ↗
+                        </button>
+                      </div>
+                    </article>
+                  ),
+                )
               ) : (
                 <div className="no-race">선택한 조건에 해당하는 샘플 경주가 없습니다.</div>
               )}
@@ -589,12 +611,11 @@ export default function HomePage() {
                   </div>
                 </div>
               </a>
-              <a
+              <Link
                 className="mode-card mode-past"
-                href="#races"
+                href="/challenge/past"
                 data-view="past"
                 aria-label="지난 경주 연습하기"
-                onClick={() => handleViewChange("past")}
               >
                 <div className="mode-image mode-image-past"></div>
                 <div className="mode-shade"></div>
@@ -612,11 +633,11 @@ export default function HomePage() {
                     </h3>
                     <p>이미 종료된 경주로 예측 감각을 연습해 보세요.</p>
                     <span className="mode-link">
-                      지난 경주 살펴보기 <span className="circle-arrow">↗</span>
+                      지난 경주 도전하기 <span className="circle-arrow">↗</span>
                     </span>
                   </div>
                 </div>
-              </a>
+              </Link>
             </div>
             <p className="mode-disclaimer">
               ※ 지난 경주는 실제 결과가 이미 공개되어 있습니다. 공정한 포인트·랭킹 운영 정책은 확정 전이며 현재는 화면 시안입니다.
