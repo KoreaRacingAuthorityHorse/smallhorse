@@ -57,6 +57,8 @@ export function buildGroupCombinations(type: BetType, draft: GroupDraft, entries
   let candidates: number[][];
   if (nonEmpty.length === 1) {
     candidates = meta.ordered ? permutations(nonEmpty[0], meta.requiredCount) : combinations(nonEmpty[0], meta.requiredCount);
+  } else if (meta.requiredCount === 2 && groups.length >= 2 && !groups[2]?.length && groups[0].length && groups[1].length) {
+    candidates = cartesian(groups.slice(0, 2));
   } else if (meta.requiredCount === 3 && groups.length === 2 && nonEmpty.length === 2) {
     const leftCount = draft.pattern === "2+1" ? 2 : 1;
     const make = meta.ordered ? permutations : combinations;
