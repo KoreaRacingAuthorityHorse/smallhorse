@@ -263,7 +263,7 @@ export default function HomePage() {
                       예정 경주 예측<small>경주 전 결과 예측하기</small>
                     </a>
                     <a
-                      href="#races"
+                      href="/challenge/past"
                       onClick={() => {
                         handleViewChange("past");
                       }}
