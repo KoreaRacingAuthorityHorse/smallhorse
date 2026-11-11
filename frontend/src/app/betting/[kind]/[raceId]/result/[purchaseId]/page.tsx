@@ -67,7 +67,10 @@ export default function PurchaseResultPage({ params }: { params: Promise<{ kind:
     {view.status === "pending" && <section className="bet-panel"><p className="bet-eyebrow">PURCHASE RECEIPT</p><h1>결과 대기</h1><p>구매가 접수되었습니다. 실제 결과가 확정되기 전까지 순위와 정산은 표시되지 않습니다.</p><p>구매 ID: {view.purchase.id} · 구매액 {formatPoints(view.purchase.totalStake)}P</p></section>}
     {view.status === "unavailable" && <section className="bet-panel"><h1>결과를 확인할 수 없습니다</h1><p>결과 자료가 완전하지 않아 정산을 보류했습니다.</p><ul>{view.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul><p>구매 ID: {view.purchase.id}</p></section>}
     {view.status === "settled" && <section className="bet-panel" aria-labelledby="purchase-result-title">
-      <p className="bet-eyebrow">CONFIRMED RESULT</p><h1 id="purchase-result-title">{view.reveal.date.replaceAll("-", ".")} · {view.reveal.raceName}</h1>
+      <div className="bet-result-head">
+        <div><p className="bet-eyebrow">RESULT / 결과 공개</p><h1 id="purchase-result-title">{view.reveal.date.replaceAll("-", ".")} {view.meet} {view.reveal.raceNo}경주 <span>· {view.reveal.raceName}</span></h1></div>
+        <Link className="bet-info-open" href="/challenge/past">다음 경주 보기</Link>
+      </div>
       <p>{view.reveal.raceNo}경주 · 구매 {formatPoints(view.settlement.totalStake)}P · 반환 {formatPoints(view.settlement.totalReturn)}P · 순손익 {view.settlement.netChange >= 0 ? "+" : ""}{formatPoints(view.settlement.netChange)}P</p>
       <ReplayCanvas entries={view.reveal.entries} distance={view.distance} meet={view.meet} />
       <div className="bet-primary"><h2>확정 도착 순위</h2><div className="bet-entry-table-wrap"><table className="bet-entry-table"><thead><tr><th>순위</th><th>번호</th><th>마명</th><th>기수</th><th>기록</th><th>착차</th></tr></thead>
