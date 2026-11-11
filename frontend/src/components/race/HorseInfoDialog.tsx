@@ -4,10 +4,11 @@ import { useEffect, useRef } from "react";
 import type { RaceEntry } from "@/types/racing";
 import EntryTable from "./EntryTable";
 
-export default function HorseInfoDialog({ open, entries, selected, onToggle, onClose }: {
+export default function HorseInfoDialog({ open, entries, selected, showHorseNames = true, onToggle, onClose }: {
   open: boolean;
   entries: RaceEntry[];
   selected: number[];
+  showHorseNames?: boolean;
   onToggle: (horseNo: number) => void;
   onClose: () => void;
 }) {
@@ -34,6 +35,6 @@ export default function HorseInfoDialog({ open, entries, selected, onToggle, onC
   return <dialog ref={dialogRef} className="bet-horse-dialog" aria-labelledby="bet-horse-dialog-title" onCancel={(event) => { event.preventDefault(); onClose(); }}>
     <div className="bet-horse-dialog-head"><div><p className="bet-step">RACE ENTRIES</p><h2 id="bet-horse-dialog-title">출전마 정보</h2></div><button type="button" className="bet-horse-dialog-close" onClick={onClose}>닫기</button></div>
     <p className="bet-muted">번호를 누르면 베팅 선택에 반영됩니다. 제공되지 않은 경주 자료는 미제공으로 표시합니다.</p>
-    <EntryTable entries={entries} selected={selected} onToggle={onToggle} detailed />
+    <EntryTable entries={entries} selected={selected} onToggle={onToggle} detailed showHorseNames={showHorseNames} />
   </dialog>;
 }

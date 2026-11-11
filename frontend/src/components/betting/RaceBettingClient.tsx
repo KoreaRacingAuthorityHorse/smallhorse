@@ -125,14 +125,14 @@ export default function RaceBettingClient({ race, entries, raceKind = "upcoming"
       <div className="bet-primary">
         <section className="bet-panel bet-entries" aria-labelledby="bet-entries-title">
           <div className="bet-section-head"><div><p className="bet-step">HORSE INFORMATION</p><h2 id="bet-entries-title">출전마 정보</h2></div><button className="bet-info-open" type="button" onClick={() => setHorseInfoOpen(true)}>전체 정보 보기</button></div>
-          <EntryTable entries={entries} selected={selectedHorses} onToggle={toggleHorse} />
+          <EntryTable entries={entries} selected={selectedHorses} onToggle={toggleHorse} detailed showHorseNames={raceKind !== "pastBlind"} />
         </section>
-        {loaded && <BetDraftEditor draft={draft} entries={entries} open={race.status === "OPEN"}
+      </div>
+      <aside className="bet-sidebar">
+        {loaded && <BetDraftEditor draft={draft} entries={entries} open={race.status === "OPEN"} showHorseNames={raceKind !== "pastBlind"}
           balance={wallet?.balance ?? DEFAULT_BALANCE} onChange={(next) => save(next, slip)} onAdd={addSlip} />}
         {storageError && <p role="status">이 탭에 초안을 저장할 수 없습니다.</p>}
         {slipError && <p role="alert">{slipError}</p>}
-      </div>
-      <aside className="bet-sidebar">
         {!testOnly && <PurchaseController race={{ ...race, raceKind }} entries={entries} items={slip}
           onRemove={(id) => save(draft, slip.filter((item) => item.id !== id))}
           onPurchased={(purchase) => {
@@ -144,7 +144,7 @@ export default function RaceBettingClient({ race, entries, raceKind = "upcoming"
     </div>
   </div></main>
     <button className="bet-mobile-info" type="button" onClick={() => setHorseInfoOpen(true)} aria-haspopup="dialog">출전마 정보</button>
-    <HorseInfoDialog open={horseInfoOpen} entries={entries} selected={selectedHorses} onToggle={toggleHorse} onClose={() => setHorseInfoOpen(false)} />
+    <HorseInfoDialog open={horseInfoOpen} entries={entries} selected={selectedHorses} showHorseNames={raceKind !== "pastBlind"} onToggle={toggleHorse} onClose={() => setHorseInfoOpen(false)} />
     <SlipDialog open={!!pendingItem} title="중복 조합 추가 확인" onClose={() => setPendingItem(null)}>
       {pending && <><p>기존 슬립과 겹치는 {pending.duplicates.length}조합 · 추가 중복 금액 {pending.duplicateStake.toLocaleString()}P</p>
         <p>이번 추가 {pending.addedStake.toLocaleString()}P · 추가 후 총액 {pending.totalStake.toLocaleString()}P</p>
