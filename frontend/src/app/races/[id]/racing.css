@@ -397,7 +397,7 @@
   border-color: transparent;
   background: transparent;
 }
-.bet-combination-groups .bet-horse-choices button.active .bet-saddle { outline: 2px solid var(--wine); outline-offset: 0; }
+.bet-combination-groups .bet-horse-choices button.active .bet-saddle { outline: 2px solid var(--wine); outline-offset: 0; background: var(--wine); color: white; }
 .bet-combination-dialog .bet-combination-preview ol { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 
 .bet-combination-group-row {
@@ -435,6 +435,8 @@
   max-width: 100%;
   height: 2.5rem;
   box-sizing: border-box;
+  background: var(--cream);
+  color: var(--ink);
 }
 
 .bet-purchase-dialog[open] {

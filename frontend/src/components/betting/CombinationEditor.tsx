@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import { buildGroupCombinations, getBetTypeMeta, type TwoGroupPattern } from "@/lib/betting";
 import type { RaceEntry } from "@/types/racing";
-import { saddleStyle } from "@/components/past-race/saddle";
 import { Check } from "lucide-react";
 
 export default function CombinationEditor({ open, type, groups, pattern, entries, stake, showHorseNames, onGroupsChange, onPatternChange, onClose }: {
@@ -58,7 +57,7 @@ export default function CombinationEditor({ open, type, groups, pattern, entries
         <div className="bet-horse-choices">{entries.map((entry) => {
           const selected = group.includes(entry.horseNo);
           const selectedInOtherGroup = groups.some((otherGroup, groupIndex) => groupIndex !== index && otherGroup.includes(entry.horseNo));
-          return <button key={entry.horseNo} type="button" aria-pressed={selected} className={selected ? "active" : ""} disabled={entry.scratched || (!selected && selectedInOtherGroup)} aria-label={`${entry.horseNo}번${showHorseNames && entry.horseName ? ` ${entry.horseName}` : ""} ${selected ? "선택 해제" : selectedInOtherGroup ? "다른 라인에서 선택됨" : "선택"}`} data-tooltip={showHorseNames && entry.horseName ? entry.horseName : undefined} onClick={() => toggle(index, entry.horseNo)}>{selected && <span className="bet-horse-selection-tab" aria-hidden="true"><Check size={11} strokeWidth={3} /></span>}<span className="bet-saddle bet-combination-saddle" style={saddleStyle(entry.horseNo)} aria-hidden="true">{entry.horseNo}</span></button>;
+          return <button key={entry.horseNo} type="button" aria-pressed={selected} className={selected ? "active" : ""} disabled={entry.scratched || (!selected && selectedInOtherGroup)} aria-label={`${entry.horseNo}번${showHorseNames && entry.horseName ? ` ${entry.horseName}` : ""} ${selected ? "선택 해제" : selectedInOtherGroup ? "다른 라인에서 선택됨" : "선택"}`} data-tooltip={showHorseNames && entry.horseName ? entry.horseName : undefined} onClick={() => toggle(index, entry.horseNo)}>{selected && <span className="bet-horse-selection-tab" aria-hidden="true"><Check size={11} strokeWidth={3} /></span>}<span className="bet-saddle bet-combination-saddle" aria-hidden="true">{entry.horseNo}</span></button>;
         })}</div>
       </div>)}</div>
       <section className="bet-combination-preview" aria-live="polite"><h3>조합 미리보기</h3><p>{combinations.length.toLocaleString()}개 · 총 {Number.isFinite(total) ? total.toLocaleString() : "0"}P</p>
