@@ -61,7 +61,7 @@
 .bet-skill-preference { border-right: 1px solid var(--line); }
 .bet-preference-label { display: block; }
 .bet-draft .bet-preference select { width: 100%; min-width: 0; height: 40px; padding: 7px 10px; color: var(--ink); font-size: 14px; font-weight: 700; }
-.bet-draft .bet-purchase-segments { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 5px; }
+.bet-draft .bet-purchase-segments { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; overflow: hidden; border: 0; border-radius: 0; }
 .bet-draft .bet-purchase-segments button { min-width: 0; height: 40px; padding: 7px 8px; border: 0; border-radius: 0; color: var(--ink); font-size: 14px; }
 .bet-draft .bet-purchase-segments button + button { border-left: 1px solid var(--line); }
 .bet-draft .bet-purchase-segments button[aria-pressed="true"] { background: var(--wine); color: white; }
@@ -184,7 +184,7 @@
 .bet-draft .bet-preference { padding: clamp(.625rem, 1.2vw, .875rem); color: var(--bet-brown); }
 .bet-draft .bet-skill-preference { border-right-color: #d6c6b5; }
 .bet-draft .bet-preference select { height: 2.5rem; border-color: #d6c6b5; background: var(--paper); }
-.bet-draft .bet-purchase-segments { border-color: #d6c6b5; }
+.bet-draft .bet-purchase-segments { border: 0; }
 .bet-draft .bet-purchase-segments button { height: 2.5rem; background: var(--paper); }
 .bet-draft .bet-type-options { gap: clamp(.25rem, .55vw, .5rem); }
 .bet-draft .bet-type-options button { height: 2.5rem; border-radius: .375rem; background: var(--paper); color: var(--bet-brown); font-weight: 700; }
@@ -194,7 +194,7 @@
 .bet-beginner-options { gap: .5rem; }
 .bet-draft .bet-beginner-options button { min-height: 2.75rem; border-radius: .375rem; background: var(--paper); }
 .bet-draft .bet-beginner-options button[aria-pressed="true"] { border-color: var(--wine); background: var(--wine-soft); color: var(--wine); box-shadow: inset 0 0 0 1px var(--wine); }
-.bet-beginner-result { padding: .75rem 0 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
+.bet-beginner-result { padding: .75rem 1rem; border: 1px solid var(--line); border-radius: .5rem; background: var(--paper2); }
 .bet-combination-quick { gap: .75rem; }
 .bet-combination-quick-head h3 { color: var(--bet-brown); font: 700 1rem/1.3 var(--serif); }
 .bet-combination-edit-open { min-height: 2.375rem; padding: .5rem .75rem; border-color: #d6c6b5; background: var(--paper2); }

@@ -3,6 +3,7 @@ import type { BetCombination, BetType, PurchaseMode, RaceEntry } from "@/types/r
 import { useState } from "react";
 import CombinationEditor from "./CombinationEditor";
 import { saddleStyle } from "@/components/past-race/saddle";
+import { Check } from "lucide-react";
 
 export interface Draft {
   skill: "general" | "beginner";
@@ -63,6 +64,7 @@ function HorseChoices({ entries, selected, showHorseNames, onToggle }: {
       aria-label={`${entry.horseNo}번${showHorseNames && entry.horseName ? ` ${entry.horseName}` : ""} ${index >= 0 ? "선택 해제" : "선택"}`}
       data-tooltip={showHorseNames && entry.horseName ? entry.horseName : undefined}
       onClick={() => onToggle(entry.horseNo)}>
+      {index >= 0 && <span className="bet-horse-selection-tab" aria-hidden="true"><Check size={11} strokeWidth={3} /></span>}
       <span className="bet-saddle" style={saddleStyle(entry.horseNo)} aria-hidden="true">{entry.horseNo}</span>
     </button>;
   })}</div>;
