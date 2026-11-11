@@ -1,87 +1,56 @@
-// 데모 체험 포인트 저장소. 대시보드(src/app/dashboard/page.tsx)와 같은 localStorage 키를 써서
-// 지난 경주 모의베팅 결과가 대시보드 잔액·기록에도 보이게 한다.
-// 서버 계정이 생기면 이 모듈을 API 호출로 바꾼다.
-
+"use client";
 import { useSyncExternalStore } from "react";
 
 export const WALLET_KEY = "trackon-premium-demo-v1";
+export const WALLET_EVENT = "trackon-demo-updated";
 export const DEFAULT_BALANCE = 12480;
-const DEFAULT_TASKS = [true, true, false, false, false];
-/** 대시보드 체크리스트에서 "지난 경주 복기해 보기" 항목 위치 */
-const TASK_PAST_RACE = 3;
+const defaultTasks = [true, true, false, false, false];
+export interface WalletRecord { id?: string; raceId?: string; day: string; name: string; kind: string; pick: string; result: string; amount: number; purchase?: unknown }
+export interface WalletState { balance: number; records: WalletRecord[]; tasks: boolean[]; [key: string]: unknown }
+export interface WalletStorage { getItem(key: string): string | null; setItem(key: string, value: string): void; removeItem(key: string): void }
+const empty: WalletState = { balance: DEFAULT_BALANCE, records: [], tasks: defaultTasks };
+let cachedRaw: string | null | undefined;
+let cachedState: WalletState = empty;
 
-export interface WalletRecord {
-  day: string;
-  name: string;
-  kind: string;
-  pick: string;
-  result: string;
-  amount: number;
+export function readWallet(storage: WalletStorage = localStorage): WalletState {
+  const raw = storage.getItem(WALLET_KEY);
+  const saved = raw ? JSON.parse(raw) as Partial<WalletState> : {};
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) throw new Error("저장된 데모 데이터 형식이 올바르지 않습니다.");
+  return { ...saved,
+    balance: Number.isSafeInteger(saved.balance) && saved.balance! >= 0 ? saved.balance! : DEFAULT_BALANCE,
+    records: Array.isArray(saved.records) ? saved.records : [],
+    tasks: Array.isArray(saved.tasks) ? saved.tasks : [...defaultTasks],
+  };
 }
-
-export interface WalletState {
-  balance: number;
-  records: WalletRecord[];
-  tasks: boolean[];
-}
-
-let cache: WalletState | null = null;
-const listeners = new Set<() => void>();
-
-function read(): WalletState {
-  if (cache) return cache;
-  let saved: Partial<WalletState> | null = null;
-  try {
-    saved = JSON.parse(localStorage.getItem(WALLET_KEY) || "null");
-  } catch {
-    saved = null;
+function notify(storage: WalletStorage) { if (typeof window !== "undefined" && storage === window.localStorage) window.dispatchEvent(new Event(WALLET_EVENT)); }
+export function writeWallet(state: WalletState, storage: WalletStorage = localStorage): void { storage.setItem(WALLET_KEY, JSON.stringify(state)); notify(storage); }
+export function resetWallet(storage: WalletStorage = localStorage): void {
+  const state = readWallet(storage);
+  const ledger = state.purchaseLedger;
+  if (ledger && typeof ledger === "object" && !Array.isArray(ledger)) {
+    for (const id of Object.keys(ledger)) storage.removeItem(`trackon-purchase-v1:${id}`);
   }
-  cache = {
-    balance: saved?.balance ?? DEFAULT_BALANCE,
-    records: saved?.records ?? [],
-    tasks: saved?.tasks ?? DEFAULT_TASKS,
-  };
-  return cache;
+  storage.removeItem(WALLET_KEY); notify(storage);
 }
-
-function write(next: WalletState) {
-  cache = next;
-  try {
-    localStorage.setItem(WALLET_KEY, JSON.stringify(next));
-  } catch {
-    // 저장이 막힌 환경(시크릿 창 등)에서는 이번 방문 동안만 유지
-  }
-  listeners.forEach((l) => l());
+export function setWalletTask(index: number, done: boolean, storage: WalletStorage = localStorage): WalletState {
+  const current = readWallet(storage);
+  const next = { ...current, tasks: Array.from({ length: 5 }, (_, i) => i === index ? done : Boolean(current.tasks[i])) };
+  writeWallet(next, storage); return next;
 }
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === WALLET_KEY) {
-      cache = null;
-      listener();
-    }
-  };
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", onStorage);
-  };
+function snapshot(): WalletState {
+  try { const raw = localStorage.getItem(WALLET_KEY); if (raw === cachedRaw) return cachedState; cachedRaw = raw; cachedState = readWallet(); return cachedState; }
+  catch { return empty; }
 }
-
-/** 서버 렌더링 중에는 null(잔액을 아직 모름)을 돌려준다. */
-export function useWallet(): WalletState | null {
-  return useSyncExternalStore(subscribe, read, () => null);
+function subscribe(callback: () => void) {
+  const onStorage = (event: StorageEvent) => { if (event.key === WALLET_KEY || event.key === null) callback(); };
+  window.addEventListener("storage", onStorage); window.addEventListener(WALLET_EVENT, callback); window.addEventListener("focus", callback);
+  return () => { window.removeEventListener("storage", onStorage); window.removeEventListener(WALLET_EVENT, callback); window.removeEventListener("focus", callback); };
 }
-
-/** 베팅 결과를 반영한다. records는 대시보드 표 형식에 맞춰 최근 20개만 보관. */
+export function useWallet(): WalletState | null { return useSyncExternalStore(subscribe, snapshot, () => null); }
+/** Legacy past-race settlement remains a net-delta operation until route conversion. */
 export function applyRound(delta: number, newRecords: WalletRecord[]) {
-  const cur = read();
-  const tasks = cur.tasks.map((v, i) => (i === TASK_PAST_RACE ? true : v));
-  write({ balance: cur.balance + delta, records: [...newRecords, ...cur.records].slice(0, 20), tasks });
+  try { const current = readWallet(); const tasks = current.tasks.map((value, index) => index === 3 ? true : value);
+    writeWallet({ ...current, balance: current.balance + delta, records: [...newRecords, ...current.records].slice(0, 20), tasks }); }
+  catch { /* Legacy flow tolerates unavailable browser storage. */ }
 }
-
-export function refillBalance() {
-  const cur = read();
-  write({ ...cur, balance: DEFAULT_BALANCE });
-}
+export function refillBalance() { try { const current = readWallet(); writeWallet({ ...current, balance: DEFAULT_BALANCE }); } catch {} }

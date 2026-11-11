@@ -1,0 +1,97 @@
+.bet-page { min-height: 100vh; background: var(--cream); color: var(--ink); }
+.bet-container { max-width: 1320px; width: calc(100% - 92px); margin: 0 auto; }
+.bet-main { padding: 46px 0 90px; }
+.bet-back { display: inline-block; color: var(--muted); font-weight: 700; margin-bottom: 26px; }
+.bet-eyebrow, .bet-step { color: var(--gold); font-size: 11px; font-weight: 800; letter-spacing: .15em; }
+.bet-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 12px 0 26px; }
+.bet-heading h1 { font: 700 clamp(30px, 4vw, 45px) var(--serif); letter-spacing: -.05em; }
+.bet-heading p { margin-top: 10px; color: var(--muted); }
+.bet-status { padding: 9px 16px; border: 1px solid var(--line); border-radius: 100px; color: var(--muted); font-weight: 800; }
+.bet-status.is-open { color: var(--green); background: var(--wine-soft); }
+.bet-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(330px, 38%); gap: 22px; align-items: start; }
+.bet-primary { display: grid; gap: 22px; min-width: 0; }
+.bet-sidebar { position: sticky; top: 24px; }
+.bet-panel { min-width: 0; padding: 28px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+.bet-section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.bet-section-head h2 { margin-top: 7px; font: 700 24px var(--serif); }
+.bet-muted { color: var(--muted); line-height: 1.6; }
+.bet-horse-choices { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.bet-horse-choices button { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); padding: 9px 4px; font-weight: 800; }
+.bet-horse-choices button.active { border-color: var(--wine); background: var(--wine); color: white; }
+.bet-horse-choices button:disabled { opacity: .4; cursor: not-allowed; }
+.bet-horse-choices small { width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; font-weight: 500; }
+.bet-button { width: 100%; margin-top: 18px; border: 1px solid var(--wine); background: var(--wine); color: white; border-radius: 5px; padding: 11px 17px; font-weight: 800; }
+.bet-draft { display: grid; gap: 14px; }
+.bet-draft [role="group"] { display: flex; flex-wrap: wrap; gap: 8px; }
+.bet-draft [role="group"] button, .bet-draft select, .bet-draft input {
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper);
+  padding: 7px 10px;
+}
+.bet-draft [role="group"] button[aria-pressed="true"] { background: var(--wine); color: white; }
+.bet-draft fieldset { min-width: 0; }
+.bet-draft legend { margin-bottom: 6px; }
+.bet-sidebar li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.bet-sidebar li button { margin-inline-start: 8px; color: var(--wine); text-decoration: underline; }
+.bet-entry-table-wrap { width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; }
+.bet-entry-table { width: 100%; border-collapse: collapse; text-align: left; white-space: nowrap; font-size: 13px; }
+.bet-entry-table th, .bet-entry-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.bet-entry-table th { color: var(--muted); font-size: 11px; }
+.bet-entry-table tr.is-selected td { background: var(--wine-soft); }
+.bet-entry-table tr.is-scratched { color: var(--muted); opacity: .65; }
+.bet-saddle { display: inline-grid; width: 28px; height: 28px; place-items: center; border: 1px solid var(--line); border-radius: 3px; font-weight: 800; }
+.bet-entry-number-button { border: 0; padding: 0; background: transparent; color: inherit; cursor: pointer; }
+.bet-entry-number-button[aria-pressed="true"] .bet-saddle { background: var(--wine); border-color: var(--wine); color: white; }
+.bet-entry-number-button:focus-visible, .bet-info-open:focus-visible, .bet-horse-dialog-close:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.bet-entry-number-button:disabled { cursor: not-allowed; }
+.bet-scratched-label { display: block; color: var(--wine); font-size: 10px; }
+.bet-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.bet-info-open, .bet-horse-dialog-close { border: 1px solid var(--line); border-radius: 5px; padding: 9px 13px; background: var(--paper); color: var(--ink); font-weight: 700; cursor: pointer; }
+.bet-horse-dialog { width: min(820px, calc(100vw - 40px)); max-width: none; max-height: min(86dvh, 900px); padding: 28px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); box-shadow: 0 24px 80px #0005; }
+.bet-horse-dialog::backdrop { background: #20181699; }
+.bet-horse-dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.bet-horse-dialog-head h2 { margin-top: 6px; font: 700 26px var(--serif); }
+.bet-horse-dialog .bet-entry-table-wrap { max-height: 62dvh; margin-top: 18px; }
+.bet-horse-dialog .bet-entry-table thead { position: sticky; top: 0; z-index: 1; background: var(--paper); }
+.bet-mobile-info { display: none; }
+.bet-combination-open { margin-top: 0; }
+.bet-combination-dialog { width: min(820px, calc(100vw - 40px)); max-width: none; max-height: min(88dvh, 920px); padding: 28px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); box-shadow: 0 24px 80px #0005; }
+.bet-combination-dialog::backdrop { background: #20181699; }
+.bet-combination-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.bet-combination-head h2 { margin-top: 6px; font: 700 26px var(--serif); }
+.bet-combination-controls { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.bet-combination-controls label { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.bet-combination-controls select { border: 1px solid var(--line); border-radius: 5px; padding: 8px; background: var(--paper); color: var(--ink); }
+.bet-combination-groups { display: grid; gap: 12px; }
+.bet-combination-groups fieldset { min-width: 0; padding: 14px; border: 1px solid var(--line); }
+.bet-combination-groups legend { padding-inline: 6px; font-weight: 800; }
+.bet-combination-preview { margin-top: 18px; padding: 14px; border: 1px solid var(--line); background: var(--cream); }
+.bet-combination-preview h3 { font: 700 17px var(--serif); }
+.bet-combination-preview > p { margin-top: 6px; font-weight: 700; }
+.bet-combination-preview ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; max-height: 200px; overflow: auto; margin-top: 10px; padding-left: 22px; font-size: 12px; }
+.bet-slip-list { list-style: none; padding: 0; margin: 16px 0; }
+.bet-slip-item { padding: 14px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.bet-slip-item-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.bet-slip-item p, .bet-slip-item details { margin-top: 8px; }
+.bet-slip-remove { color: var(--wine); text-decoration: underline; white-space: nowrap; }
+.bet-slip-item ol { padding-left: 24px; max-height: 260px; overflow: auto; }
+.bet-slip-item summary { cursor: pointer; color: var(--wine); }
+.bet-slip-total { font-weight: 800; margin: 16px 0 8px; }
+.bet-slip-dialog { width: min(720px, calc(100vw - 32px)); max-width: none; max-height: 88dvh; margin: auto; padding: 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); overflow: auto; box-shadow: 0 24px 80px #0005; }
+.bet-slip-dialog::backdrop { background: #20181699; }
+.bet-slip-dialog p { margin-top: 12px; }
+.bet-slip-actions { display: flex; align-items: center; gap: 12px; margin-top: 20px; }
+.bet-slip-actions .bet-button { width: auto; margin: 0; }
+.bet-mobile-slip { display: none; }
+@media (max-width: 767px) {
+  .bet-page .bet-main { padding-bottom: calc(156px + env(safe-area-inset-bottom)); }
+  .bet-slip-desktop { display: none; }
+  .bet-mobile-slip { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 31; min-height: calc(68px + env(safe-area-inset-bottom)); padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--line); background: var(--paper); color: var(--wine); box-shadow: 0 -4px 16px #0001; }
+  .bet-page .bet-mobile-info { bottom: calc(88px + env(safe-area-inset-bottom)); }
+  .bet-slip-fullscreen { inset: 0; width: 100%; height: 100dvh; max-height: none; margin: 0; padding: max(18px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); border: 0; border-radius: 0; }
+}
+@media (max-width: 1024px) { .bet-layout { grid-template-columns: 1fr; } .bet-sidebar { position: static; } }
+@media (max-width: 620px) { .bet-container { width: calc(100% - 30px); } .bet-main { padding: 28px 0 60px; } .bet-heading { align-items: start; flex-direction: column; gap: 14px; } .bet-panel { padding: 18px; } .bet-horse-choices { grid-template-columns: repeat(4, minmax(0, 1fr)); } .bet-horse-dialog, .bet-combination-dialog { inset: 0; width: 100%; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: max(18px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); border: 0; border-radius: 0; overflow: auto; } .bet-horse-dialog .bet-entry-table-wrap { max-height: none; overflow: visible; } .bet-mobile-info { display: block; position: fixed; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 30; border: 1px solid var(--wine); border-radius: 999px; padding: 12px 18px; background: var(--wine); color: white; font-weight: 800; box-shadow: 0 6px 20px #0003; } .bet-info-open { display: none; } .bet-combination-preview ol { grid-template-columns: 1fr; max-height: 30dvh; } }
+@media (max-width: 380px) { .bet-container { width: calc(100% - 22px); } .bet-horse-choices { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
