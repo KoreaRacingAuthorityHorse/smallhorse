@@ -37,6 +37,16 @@ export async function getBlindRace(opts: { venue?: Venue; exclude?: string[] } =
   return { id: race.id, ...race.blind };
 }
 
+export async function getBlindRaceById(id: string): Promise<BlindRace | null> {
+  const race = RACES.find((item) => item.id === id);
+  return race ? { id: race.id, ...race.blind } : null;
+}
+
+export async function getRevealById(id: string): Promise<RaceReveal | null> {
+  const race = RACES.find((item) => item.id === id);
+  return race ? race.reveal : null;
+}
+
 export async function settleRace(raceId: string, bets: Bet[]): Promise<Settlement> {
   const race = RACES.find((r) => r.id === raceId);
   if (!race) throw new Error(`경주를 찾을 수 없어요: ${raceId}`);

@@ -1,5 +1,98 @@
-/* 헤더 "모의베팅" 하위 메뉴. 랜딩(landing.css)의 .nav-dropdown / .dropdown-panel과 같은 값.
-   landing.css는 [data-page="home"] 범위로만 적용되어 서비스 화면(.app-root)에서는 쓸 수 없어 따로 둔다. */
+/* Shared service header. Keep its layout isolated from route-level global CSS. */
+
+.notice {
+  background: #27201d;
+  color: #ddd3c6;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: .1em;
+  line-height: 30px;
+}
+.notice strong { color: #f3e0bb; }
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #fffcf8f7;
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.inner {
+  max-width: 1320px;
+  width: calc(100% - 92px);
+  height: 75px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  color: inherit;
+  text-decoration: none;
+}
+.brandMain {
+  font: 800 28px/.95 Georgia, serif;
+  letter-spacing: -.07em;
+}
+.brandMain em { font-style: normal; color: var(--gold); }
+.brand small {
+  display: block;
+  margin-top: 6px;
+  color: #736b61;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .26em;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  flex: 1;
+  min-width: 0;
+}
+.navLink {
+  color: #342e2b;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color .2s;
+}
+.navLink:hover, .navLink.activeLink { color: var(--wine); }
+.tools { display: flex; align-items: center; margin-left: auto; }
+.points {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  font-weight: 900;
+  white-space: nowrap;
+}
+.coin {
+  display: grid;
+  width: 21px;
+  height: 21px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #fff;
+  font: 900 13px Georgia, serif;
+}
+.mobileToggle {
+  display: none;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-size: 25px;
+  padding: 6px;
+}
 
 .dropdown { position: relative; }
 
@@ -54,6 +147,37 @@
 .panel small { display: block; margin-top: 5px; font-size: 10px; font-weight: 500; color: #84868a; }
 
 @media (max-width: 900px) {
+  .inner { width: calc(100% - 42px); height: 66px; gap: 13px; }
+  .brandMain { font-size: 24px; }
+  .mobileToggle { display: block; order: 5; margin-left: auto; }
+  .nav {
+    position: absolute;
+    display: none;
+    top: 66px;
+    left: 21px;
+    right: 21px;
+    z-index: 60;
+    padding: 12px 25px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    box-shadow: 0 15px 20px #0001;
+  }
+  .navOpen { display: flex; }
+  .navLink { padding: 13px 4px; border-bottom: 1px solid var(--line); }
+  .navLink:last-child { border-bottom: 0; }
   .panel { position: static; width: 100%; box-shadow: none; padding: 4px; margin-top: 6px; }
   .panel a { padding: 11px; }
+}
+
+@media (max-width: 580px) {
+  .inner { width: calc(100% - 30px); height: 62px; }
+  .nav { top: 62px; left: 15px; right: 15px; }
+  .notice { font-size: 9px; letter-spacing: 0; }
+  .brandMain { font-size: 22px; }
+  .brand small { font-size: 6px; letter-spacing: .18em; }
+  .points { gap: 6px; padding: 7px; font-size: 11px; }
+  .coin { width: 17px; height: 17px; font-size: 11px; }
 }

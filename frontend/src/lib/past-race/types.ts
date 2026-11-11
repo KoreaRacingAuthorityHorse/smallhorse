@@ -106,6 +106,10 @@ export interface Settlement {
   totalPayout: number;
 }
 
+export type ResultAvailability =
+  | { status: "available"; reveal: RaceReveal }
+  | { status: "unavailable"; reasons: string[] };
+
 export interface LearningStats {
   nRaces: number;
   favorite: Record<string, { win: number; top3: number }>;

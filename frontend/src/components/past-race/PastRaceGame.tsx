@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { applyRound, DEFAULT_BALANCE, refillBalance, useWallet, type WalletRecord } from "@/lib/demo-wallet";
 import { poolDef } from "@/lib/past-race/pools";
 import { getBlindRace, getLearningStats, settleRace } from "@/lib/past-race/service";
@@ -40,10 +40,12 @@ function gradeLabel(g: string) {
 const isVenue = (v: string | null): v is Venue => !!v && (VENUES as string[]).includes(v) && v !== "all";
 
 export default function PastRaceGame() {
+  const router = useRouter();
   const wallet = useWallet();
   // 랜딩의 경마장별 "도전하기"에서 넘어오면 ?venue=서울 처럼 경마장이 미리 선택된다
   const searchParams = useSearchParams();
   const venueParam = searchParams.get("venue");
+  const legacyMode = searchParams.get("legacy") === "1";
   const [venue, setVenueState] = useState<Venue | "all">(isVenue(venueParam) ? venueParam : "all");
   const setVenue = (v: Venue | "all") => {
     setVenueState(v);
@@ -74,6 +76,7 @@ export default function PastRaceGame() {
       ]);
       if (!alive) return;
       setRace(r);
+      if (r && !legacyMode) router.replace(`/betting/pastBlind/${r.id}`);
       setStats(s);
       setPicks([]);
       setBets([]);
@@ -83,7 +86,7 @@ export default function PastRaceGame() {
     return () => {
       alive = false;
     };
-  }, [venue, reload]);
+  }, [venue, reload, router, legacyMode]);
 
   // 결과 화면이 그려진 뒤 그 위치로 이동
   useEffect(() => {
