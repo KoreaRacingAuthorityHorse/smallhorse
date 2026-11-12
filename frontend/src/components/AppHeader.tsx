@@ -22,6 +22,12 @@ export default function AppHeader({ active }: { active?: Section }) {
     navRef.current?.querySelectorAll("details").forEach((d) => (d.open = false));
   };
 
+  const closeOtherDropdowns = (current: HTMLElement) => {
+    navRef.current?.querySelectorAll("details").forEach((detail) => {
+      if (detail !== current) detail.open = false;
+    });
+  };
+
   // 바깥을 누르거나 Esc를 누르면 하위 메뉴를 닫는다
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
