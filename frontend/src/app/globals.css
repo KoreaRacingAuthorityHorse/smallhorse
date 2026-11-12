@@ -2,6 +2,8 @@
 @import "tailwindcss";
 @import "../styles/landing.css";
 @import "../styles/styles.css";
+@import "../styles/race-data.css";
+
 
 /* Design System Tokens - TRACKON Warm Editorial */
 :root {

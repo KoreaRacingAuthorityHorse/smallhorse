@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import styles from "./AppHeader.module.css";
 // 서비스 화면 공통 헤더. 구조와 반응형 배치는 CSS Module로 격리한다.
 // "모의베팅" 메뉴는 랜딩(src/app/page.tsx)과 같은 하위 메뉴(예정 경주 예측 / 지난 경주 도전)를 쓴다.
 // 기존 페이지들은 아직 각자 헤더를 복사해 쓰고 있어, 이후 이 컴포넌트로 합칠 수 있다.
-type Section = "races" | "bet-upcoming" | "bet-past" | "guide" | "ranking" | "dashboard";
+type Section = "race-data" | "races" | "bet-upcoming" | "bet-past" | "guide" | "ranking" | "dashboard";
 
 export default function AppHeader({ active }: { active?: Section }) {
   const [open, setOpen] = useState(false);
@@ -20,6 +20,12 @@ export default function AppHeader({ active }: { active?: Section }) {
   const closeAll = () => {
     setOpen(false);
     navRef.current?.querySelectorAll("details").forEach((d) => (d.open = false));
+  };
+
+  const closeOtherDropdowns = (current: HTMLElement) => {
+    navRef.current?.querySelectorAll("details").forEach((detail) => {
+      if (detail !== current) detail.open = false;
+    });
   };
 
   // 바깥을 누르거나 Esc를 누르면 하위 메뉴를 닫는다
@@ -55,6 +61,17 @@ export default function AppHeader({ active }: { active?: Section }) {
           </Link>
           <nav ref={navRef} className={`${styles.nav} ${open ? styles.navOpen : ""}`} id="mainNav" aria-label="주요 메뉴">
             <Link className={`${styles.navLink} ${cls("races") ? styles.activeLink : ""}`} href="/#races" onClick={closeAll}>경주정보</Link>
+            <details className={styles.dropdown}>
+              <summary className={`${styles.summary} ${active === "race-data" ? styles.active : ""}`}>
+                경주 데이터 <span className={styles.chevron}></span>
+              </summary>
+              <div className={styles.panel}>
+                <Link href="/race-data#race" onClick={closeAll}>경주</Link>
+                <Link href="/race-data#people" onClick={closeAll}>기수·조교사</Link>
+                <Link href="/race-data#horse" onClick={closeAll}>경주마</Link>
+                <Link href="/race-data#data" onClick={closeAll}>데이터 소개</Link>
+              </div>
+            </details>
             <details className={styles.dropdown}>
               <summary className={`${styles.summary} ${betActive ? styles.active : ""}`}>
                 모의베팅 <span className={styles.chevron}></span>

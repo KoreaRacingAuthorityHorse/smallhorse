@@ -3,6 +3,7 @@ import type { BetCombination, BetType, PurchaseMode, RaceEntry } from "@/types/r
 import { useState } from "react";
 import CombinationEditor from "./CombinationEditor";
 import { saddleStyle } from "@/components/past-race/saddle";
+import { Check } from "lucide-react";
 
 export interface Draft {
   skill: "general" | "beginner";
@@ -21,8 +22,8 @@ export const initialDraft: Draft = {
 };
 
 type BeginnerCount = 1 | 2 | 3;
-type BeginnerStep = "count" | "goal" | "result";
-type BeginnerPath = { count: BeginnerCount | null; type: BetType | null; step: BeginnerStep };
+type BeginnerStep = "count" | "goal" | "condition" | "result";
+type BeginnerPath = { count: BeginnerCount | null; type: BetType | null; step: BeginnerStep; condition: "top2" | "top3" | null };
 
 const beginnerOptions: Record<BeginnerCount, { label: string; type: BetType }[]> = {
   1: [{ label: "1등을 맞히고 싶어요", type: "WIN" }, { label: "상위권에만 들면 돼요", type: "PLACE" }],
@@ -40,13 +41,13 @@ const beginnerOptions: Record<BeginnerCount, { label: string; type: BetType }[]>
 const stakePresets = [100, 500, 1_000, 5_000, 10_000, 30_000, 50_000, 100_000] as const;
 
 function parseBeginnerPath(question: string): BeginnerPath {
-  const match = /^(1|2|3)\|(WIN|PLACE|QUINELLA|EXACTA|QUINELLA_PLACE|TRIO|TRIFECTA)?\|(count|goal|result)$/.exec(question);
-  if (!match) return { count: null, type: null, step: "count" };
-  return { count: Number(match[1]) as BeginnerCount, type: (match[2] || null) as BetType | null, step: match[3] as BeginnerStep };
+  const match = /^(1|2|3)\|(WIN|PLACE|QUINELLA|EXACTA|QUINELLA_PLACE|TRIO|TRIFECTA)?\|(count|goal|condition|result)\|(top2|top3)?$/.exec(question);
+  if (!match) return { count: null, type: null, step: "count", condition: null };
+  return { count: Number(match[1]) as BeginnerCount, type: (match[2] || null) as BetType | null, step: match[3] as BeginnerStep, condition: (match[4] || null) as BeginnerPath["condition"] };
 }
 
 function serializeBeginnerPath(path: BeginnerPath): string {
-  return `${path.count ?? ""}|${path.type ?? ""}|${path.step}`;
+  return `${path.count ?? ""}|${path.type ?? ""}|${path.step}|${path.condition ?? ""}`;
 }
 
 
@@ -63,6 +64,7 @@ function HorseChoices({ entries, selected, showHorseNames, onToggle }: {
       aria-label={`${entry.horseNo}번${showHorseNames && entry.horseName ? ` ${entry.horseName}` : ""} ${index >= 0 ? "선택 해제" : "선택"}`}
       data-tooltip={showHorseNames && entry.horseName ? entry.horseName : undefined}
       onClick={() => onToggle(entry.horseNo)}>
+      {index >= 0 && <span className="bet-horse-selection-tab" aria-hidden="true"><Check size={11} strokeWidth={3} /></span>}
       <span className="bet-saddle" style={saddleStyle(entry.horseNo)} aria-hidden="true">{entry.horseNo}</span>
     </button>;
   })}</div>;
@@ -80,15 +82,34 @@ export default function BetDraftEditor({ draft, entries, open, balance, showHors
   const [combinationOpen, setCombinationOpen] = useState(false);
   const meta = getBetTypeMeta(draft.type);
   const beginnerPath = parseBeginnerPath(draft.question);
-  const beginnerReady = beginnerPath.step === "result" && beginnerPath.type === draft.type;
+  const beginnerReady = beginnerPath.step === "result" && beginnerPath.type === draft.type && (beginnerPath.type !== "QUINELLA" || beginnerPath.condition !== null);
   const mismatch = draft.skill === "beginner" && !beginnerReady;
+  const beginnerSteps: { key: BeginnerStep; label: string; enabled: boolean }[] = [
+    { key: "count", label: "\uB9C8\uB9BF\uC218 \uC120\uD0DD", enabled: true },
+    { key: "goal", label: "\uC21C\uC704 \uC870\uAC74", enabled: beginnerPath.count !== null },
+    { key: "condition", label: "\uC801\uC911 \uC870\uAC74", enabled: beginnerPath.type === "QUINELLA" },
+    { key: "result", label: "\uC2B9\uC2DD \uD655\uC778", enabled: beginnerPath.type !== null && (beginnerPath.type !== "QUINELLA" || beginnerPath.condition !== null) },
+  ];
+  const reachedStepCount = beginnerPath.step === "result"
+    ? (beginnerPath.type === "QUINELLA" ? 4 : 3)
+    : beginnerPath.step === "condition"
+      ? 3
+      : beginnerPath.step === "goal"
+        ? 2
+        : 1;
+  const visibleBeginnerSteps = beginnerSteps.slice(0, reachedStepCount);
   const update = (patch: Partial<Draft>) => onChange({ ...draft, ...patch });
+  const goToBeginnerStep = (step: BeginnerStep) => {
+    const target = visibleBeginnerSteps.find((item) => item.key === step);
+    if (!target?.enabled || (step !== "count" && !beginnerPath.count) || (step === "condition" && beginnerPath.type !== "QUINELLA") || (step === "result" && (!beginnerPath.type || (beginnerPath.type === "QUINELLA" && !beginnerPath.condition)))) return;
+    update({ question: serializeBeginnerPath({ ...beginnerPath, step }) });
+  };
   // Changing questions preserves picks; changing the bet type uses the existing reset rule.
   const chooseType = (type: BetType) => {
     if (type !== draft.type) update({ type, selected: [], groups: Array.from({ length: defaultGroupCount(type) }, () => []), pattern: "1+2" });
   };
   const chooseBeginnerType = (type: BetType) => {
-    const question = serializeBeginnerPath({ ...beginnerPath, type, step: "result" });
+    const question = serializeBeginnerPath({ ...beginnerPath, type, condition: type === "QUINELLA" ? null : beginnerPath.condition, step: type === "QUINELLA" ? "condition" : "result" });
     if (type === draft.type) update({ question });
     else update({ type, question, selected: [], groups: Array.from({ length: defaultGroupCount(type) }, () => []), pattern: "1+2" });
   };
@@ -137,10 +158,13 @@ export default function BetDraftEditor({ draft, entries, open, balance, showHors
       </div>
     </div>
     {draft.skill === "beginner" && <div className="bet-beginner-flow" aria-live="polite">
+      <nav className="bet-step-navigation" aria-label="\uCD08\uBCF4\uC790 \uC9C8\uBB38 \uB2E8\uACC4" style={{ gridTemplateColumns: `repeat(${visibleBeginnerSteps.length}, minmax(0, 1fr))` }}>
+        {visibleBeginnerSteps.map(({ key, label, enabled }) => <button key={key} type="button" className={beginnerPath.step === key ? "is-active" : ""} aria-current={beginnerPath.step === key ? "step" : undefined} aria-label={label} disabled={!enabled} onClick={() => goToBeginnerStep(key)}><span>{label}</span></button>)}
+      </nav>
       {beginnerPath.step === "count" && <fieldset className="bet-beginner-question">
         <legend>몇 마리의 순위를 맞히고 싶으세요?</legend>
         <div className="bet-beginner-options" role="group" aria-label="맞힐 말의 수">
-          {([1, 2, 3] as const).map((count) => <button key={count} type="button" aria-pressed={beginnerPath.count === count} onClick={() => update({ question: serializeBeginnerPath({ count, type: beginnerPath.count === count ? beginnerPath.type : null, step: "goal" }) })}>{count}마리</button>)}
+          {([1, 2, 3] as const).map((count) => <button key={count} type="button" aria-pressed={beginnerPath.count === count} onClick={() => update({ question: serializeBeginnerPath({ count, type: beginnerPath.count === count ? beginnerPath.type : null, step: "goal", condition: null }) })}>{count}마리</button>)}
         </div>
       </fieldset>}
       {beginnerPath.step === "goal" && beginnerPath.count && <fieldset className="bet-beginner-question">
@@ -148,11 +172,12 @@ export default function BetDraftEditor({ draft, entries, open, balance, showHors
         <div className="bet-beginner-options" role="group" aria-label="승식 선택 질문">
           {beginnerOptions[beginnerPath.count].map(({ label, type }) => <button key={type} type="button" aria-pressed={beginnerPath.type === type} onClick={() => chooseBeginnerType(type)}>{label}</button>)}
         </div>
-        <button className="bet-beginner-back" type="button" onClick={() => update({ question: serializeBeginnerPath({ ...beginnerPath, step: "count" }) })}>이전 질문</button>
+        <button className="bet-beginner-back" type="button" onClick={() => update({ question: serializeBeginnerPath({ ...beginnerPath, step: "count" }) })}>&larr;</button>
       </fieldset>}
+      {beginnerPath.step === "condition" && beginnerPath.type === "QUINELLA" && <fieldset className="bet-beginner-question"><legend>{"\uC120\uD0DD\uD55C \uB450 \uB9C8\uB9AC\uAC00 \uC5B4\uB5A4 \uACB0\uACFC\uB97C \uB0B4\uBA74 \uC88B\uACA0\uC5B4\uC694?"}</legend><div className="bet-beginner-options" role="group" aria-label={"\uC801\uC911 \uC870\uAC74"}><button type="button" onClick={() => update({ question: serializeBeginnerPath({ ...beginnerPath, condition: "top2", step: "result" }) })}>{"\uB450 \uB9C8\uB9AC\uAC00 \uBAA8\uB450 1\u00B72\uB4F1 \uC548\uC5D0 \uB4E4\uC5B4\uC624\uBA74 \uB3FC\uC694."}</button><button type="button" onClick={() => update({ type: "QUINELLA_PLACE", question: serializeBeginnerPath({ ...beginnerPath, type: "QUINELLA_PLACE", condition: "top3", step: "result" }), selected: [], groups: Array.from({ length: defaultGroupCount("QUINELLA_PLACE") }, () => []), pattern: "1+2" })}>{"\uB450 \uB9C8\uB9AC\uAC00 \uBAA8\uB450 3\uB4F1 \uC548\uC5D0 \uB4E4\uC5B4\uC624\uBA74 \uC694."}</button></div></fieldset>}
       {beginnerPath.step === "result" && beginnerPath.type && <div className="bet-beginner-result">
         <p>선택한 승식</p><strong>{getBetTypeMeta(beginnerPath.type).label}</strong><span>{getBetTypeMeta(beginnerPath.type).help}</span>
-        <button className="bet-beginner-back" type="button" onClick={() => update({ question: serializeBeginnerPath({ ...beginnerPath, step: "goal" }) })}>이전 질문</button>
+        <button className="bet-beginner-back" type="button" onClick={() => update({ question: serializeBeginnerPath({ ...beginnerPath, step: "goal" }) })}>&larr;</button>
       </div>}
     </div>}
     {draft.skill === "general" && <div className="bet-type-options" role="group" aria-label="승식">{BET_TYPES.map(({ code, label }) =>
