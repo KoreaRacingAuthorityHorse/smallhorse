@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: smallhorse-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-smallhorse}
+      POSTGRES_USER: ${DB_USER:-smallhorse}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-smallhorse}
+      TZ: Asia/Seoul
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - smallhorse-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-smallhorse} -d ${DB_NAME:-smallhorse}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  smallhorse-pgdata:
