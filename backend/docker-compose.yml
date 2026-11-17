@@ -1,3 +1,5 @@
+name: smallhorse
+
 services:
   postgres:
     image: postgres:17

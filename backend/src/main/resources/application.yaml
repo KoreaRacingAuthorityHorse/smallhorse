@@ -1,6 +1,10 @@
 spring:
   application:
     name: smallhorse
+  config:
+    # backend/.env 를 읽는다. 없으면 무시 (docker compose 와 같은 파일 공유)
+    # 실행 위치가 backend/ 이면 ./.env, 상위 폴더(smallhorse/)면 ./backend/.env
+    import: optional:file:./.env[.properties],optional:file:./backend/.env[.properties]
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:smallhorse}
     username: ${DB_USER:smallhorse}
