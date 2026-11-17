@@ -9,3 +9,21 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: false
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            # 실제 값은 환경변수로 주입 (기본값은 기동용 더미)
+            client-id: ${GOOGLE_CLIENT_ID:dummy-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:dummy-client-secret}
+            scope: openid,profile,email
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  jwt:
+    # 32바이트 이상. 운영/배포 시 반드시 SMALLHORSE_JWT_SECRET 환경변수로 교체
+    # (JWT_SECRET 은 다른 프로젝트와 이름이 겹칠 수 있어 프로젝트 전용 이름 사용)
+    secret: ${SMALLHORSE_JWT_SECRET:dev-only-secret-change-me-in-prod-0123456789}
+    expiration-minutes: 60
+    cookie-secure: ${JWT_COOKIE_SECURE:false}
