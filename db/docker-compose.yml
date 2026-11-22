@@ -1,0 +1,16 @@
+# 로컬 개발용 DB 실행. 사용: cd db && cp .env.example .env && docker compose up -d --build
+services:
+  db:
+    build: .
+    image: trackon-db:dev
+    container_name: trackon-db
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?.env에 POSTGRES_PASSWORD를 지정하세요}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5433}:5432"
+    volumes:
+      - trackon-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  trackon-db-data:

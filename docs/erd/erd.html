@@ -1,0 +1,131 @@
+<!doctype html>
+<!-- docs/erd.png 원본. 수정 후 headless Chrome으로 다시 캡처한다(docs/erd/README.md). -->
+<html lang="ko"><head><meta charset="utf-8">
+<style>
+  :root { --ink:#25201e; --muted:#77706b; --line:#d9d0c6; --paper:#fffdfa; --bg:#f7f4ef;
+          --ref:#efe7da; --master:#e3ece4; --core:#f3e3e6; --child:#e5e9f1; --edge:#8f857d; }
+  html, body { margin:0; background:var(--bg); font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif; color:var(--ink); }
+  #canvas { position:relative; width:1720px; height:1350px; }
+  h1 { position:absolute; left:40px; top:6px; margin:0; font-size:24px; letter-spacing:-.03em; }
+  .sub { position:absolute; left:40px; top:38px; font-size:13px; color:var(--muted); }
+  .t { position:absolute; background:var(--paper); border:1px solid var(--line); border-radius:6px; overflow:hidden;
+       box-shadow:0 2px 8px #2a1d1608; font-size:12.5px; }
+  .t .h { padding:7px 10px; font-weight:800; font-family:ui-monospace,Menlo,monospace; font-size:13px; display:flex; justify-content:space-between; gap:8px; }
+  .t .h small { font-family:"Apple SD Gothic Neo",sans-serif; font-weight:600; color:var(--muted); font-size:11px; }
+  .t .r { display:grid; grid-template-columns:1fr 52px; height:22px; align-items:center; padding:0 10px; border-top:1px solid #efe9e2; }
+  .t .r span:first-child { font-family:ui-monospace,Menlo,monospace; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .t .r b { font-size:10.5px; color:var(--muted); text-align:right; font-weight:700; }
+  .t .r.k span:first-child { font-weight:700; }
+  .t .r.k b { color:#71192b; }
+  .ref .h { background:var(--ref); } .master .h { background:var(--master); }
+  .core .h { background:var(--core); } .child .h { background:var(--child); }
+  .empty .h::after { content:"적재 예정"; font-size:10.5px; color:#a06a1e; font-family:sans-serif; font-weight:700; }
+  .future { position:absolute; border:1.5px dashed #b5aaa0; border-radius:8px; padding:12px 14px; font-size:12.5px; color:var(--muted); background:#fbf8f4; }
+  .future b { color:var(--ink); display:block; margin-bottom:6px; font-size:13px; }
+  .legend { position:absolute; font-size:12px; color:var(--muted); line-height:1.8; }
+  .legend i { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:6px; border:1px solid var(--line); }
+  svg { position:absolute; inset:0; pointer-events:none; overflow:visible; }
+  svg text { font-size:11px; fill:var(--muted); font-family:"Apple SD Gothic Neo",sans-serif; }
+</style></head>
+<body><div id="canvas">
+<h1>TRACK:ON 경주 데이터 ERD</h1>
+<div class="sub">PostgreSQL · 스키마 racing · 시드 2023-01 ~ 2026-11-22 (경주 9,732 · 출전 101,898) · 화살표는 참조(FK → PK)</div>
+<svg id="edges"></svg>
+</div>
+<script>
+const T = {
+  // 참조 (윗줄)
+  racecourse:  { x:40,   y:70, w:300, g:"ref", note:"경마장 4", rows:[["meet_code","PK"],["name",""],["region",""],["lap_m",""]] },
+  entry_status:{ x:370,  y:70, w:300, g:"ref", note:"결과 상태 9", rows:[["status_code","PK"],["name_ko (출전예정·완주·취소…)",""],["refundable",""]] },
+  bet_pool:    { x:700,  y:70, w:300, g:"ref", note:"승식 7", rows:[["pool_code","PK"],["name_ko",""],["picks · ordered",""]] },
+  glossary:    { x:1030, y:70, w:300, g:"ref", note:"용어 75", rows:[["term_id","PK"],["term",""],["easy_desc",""]] },
+  ingest_log:  { x:1360, y:70, w:320, g:"ref", note:"적재 이력", rows:[["ingest_id","PK"],["source_api",""],["params · rows_loaded",""]] },
+  // 마스터 (왼쪽)
+  jockey:      { x:60,  y:250, w:310, g:"master", note:"기수 838", rows:[["jk_no","PK"],["name",""],["home_meet","FK"],["debut_date · part",""],["통산·1년 성적 · 승률",""]] },
+  trainer:     { x:60,  y:422, w:310, g:"master", note:"조교사 139", rows:[["tr_no","PK"],["name",""],["home_meet","FK"],["debut_date · part",""],["통산·1년 성적 · 승률",""]] },
+  horse:       { x:60,  y:594, w:310, g:"master", note:"경주마 9,120", rows:[["hr_no","PK"],["name (최신)",""],["sex · birth_date",""],["birth_country · is_active",""],["sire_hr_no · dam_hr_no",""],["trainer_no","FK"],["owner_no","FK"],["rating · grade",""],["purchase_price",""],["통산·1년 성적 · 상금",""]] },
+  owner:       { x:60,  y:876, w:310, g:"master", note:"마주 934", rows:[["ow_no","PK"],["name",""],["home_meet","FK"],["horses_owned · 성적 · 상금",""]] },
+  horse_rating_history: { x:60, y:1026, w:310, g:"master", note:"22,968", rows:[["hr_no","PK FK"],["captured_at","PK"],["seq","PK"],["rating",""]] },
+  horse_treatment:      { x:60, y:1176, w:310, g:"master", note:"41,656", rows:[["treatment_id","PK"],["hr_no","FK"],["treated_on",""],["ill_name · hospital",""]] },
+  // 핵심 (가운데)
+  race:        { x:520, y:250, w:360, g:"core", note:"경주 9,732", rows:[["race_id","PK"],["race_key  1-20261011-5","UK"],["meet_code","FK"],["race_date · race_no","UK"],["status (예정·종료) · is_final",""],["distance_m",""],["grade_raw · weight_rule",""],["prize_1st ~ 5th",""],["scheduled_start · actual_start",""],["weather · track_state · water_pct",""],["tempo · sales_total",""]] },
+  race_entry:  { x:520, y:600, w:360, g:"core", note:"출전 101,898", rows:[["race_id","PK FK"],["chul_no (출주번호)","PK"],["hr_no","FK"],["horse_name (경주 당시)",""],["jk_no","FK"],["tr_no","FK"],["ow_no","FK"],["status_code","FK"],["carried_kg · body_weight_kg",""],["equipment · bleeding_count",""],["finish_pos · finish_time · margin",""],["win_odds · popularity_rank",""],["s1f · last3f · last1f_time",""]] },
+  // 상세 (오른쪽)
+  race_payout:       { x:980, y:250, w:330, g:"child", note:"106,170", rows:[["race_id","PK FK"],["pool_code","PK FK"],["hit_no","PK"],["combination",""],["odds",""]] },
+  race_split:        { x:980, y:420, w:330, g:"child", note:"64,364", rows:[["race_id","PK FK"],["furlong","PK"],["split_time · cum_time",""]] },
+  race_corner_order: { x:980, y:545, w:330, g:"child", note:"44,949", rows:[["race_id","PK FK"],["checkpoint","PK"],["order_raw",""]] },
+  entry_checkpoint:  { x:980, y:680, w:330, g:"child", note:"535,587", rows:[["race_id","PK FK"],["chul_no","PK FK"],["checkpoint (S1F·1C·G3F…)","PK"],["meters_from_start",""],["pass_rank",""],["cum_time",""]] },
+  entry_career_snapshot: { x:980, y:870, w:330, g:"child", note:"101,898", rows:[["race_id","PK FK"],["chul_no","PK FK"],["hr_/jk_/tr_ starts · wins",""]] },
+  race_odds:         { x:1360, y:250, w:320, g:"child", note:"490,326 (2026-10~11)", rows:[["race_id","PK FK"],["pool_code","PK FK"],["combination","PK"],["odds",""]] },
+  entry_change:      { x:980, y:995, w:330, g:"child", note:"3,331", rows:[["change_id","PK"],["race_id · chul_no","FK"],["change_type (JOCKEY·SCRATCH)",""],["before/after_jk_no",""],["reason · announced_at",""]] },
+};
+const HEADER = 31, ROW = 22;
+const cv = document.getElementById("canvas");
+for (const [name, t] of Object.entries(T)) {
+  const el = document.createElement("div");
+  el.className = `t ${t.g}${t.empty ? " empty" : ""}`;
+  Object.assign(el.style, { left: t.x + "px", top: t.y + "px", width: t.w + "px" });
+  el.innerHTML = `<div class="h"><span>${name}</span>${t.note ? `<small>${t.note}</small>` : ""}</div>` +
+    t.rows.map(([c, k]) => `<div class="r${k ? " k" : ""}"><span>${c}</span><b>${k}</b></div>`).join("");
+  cv.appendChild(el);
+  t.h = HEADER + t.rows.length * ROW;
+}
+const rowY = (t, col) => { const i = T[t].rows.findIndex(r => r[0].startsWith(col)); return T[t].y + HEADER + (i + 0.5) * ROW; };
+const P = (t, side, col) => {
+  const b = T[t];
+  if (side === "left") return [b.x, rowY(t, col)];
+  if (side === "right") return [b.x + b.w, rowY(t, col)];
+  if (side === "top") return [b.x + (col ?? b.w / 2), b.y];
+  return [b.x + (col ?? b.w / 2), b.y + b.h];
+};
+const svg = document.getElementById("edges");
+svg.innerHTML = `<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#8f857d"/></marker></defs>`;
+function edge(from, to, label, bend = 60) {
+  const [x1, y1, s1] = from, [x2, y2, s2] = to;
+  const dir = s => ({ left: [-1, 0], right: [1, 0], top: [0, -1], bottom: [0, 1] })[s];
+  const [a, b] = dir(s1), [c, d] = dir(s2);
+  const path = `M${x1} ${y1} C${x1 + a * bend} ${y1 + b * bend} ${x2 + c * bend} ${y2 + d * bend} ${x2} ${y2}`;
+  svg.insertAdjacentHTML("beforeend", `<path d="${path}" fill="none" stroke="#8f857d" stroke-width="1.4" marker-end="url(#a)"/>`);
+  if (label) svg.insertAdjacentHTML("beforeend", `<text x="${(x1 + x2) / 2 + 4}" y="${(y1 + y2) / 2 - 4}">${label}</text>`);
+}
+const E = (t, side, col) => [...P(t, side, col), side];
+// 경주 쪽
+edge(E("race", "top", 60), E("racecourse", "bottom", 150), "개최", 50);
+edge(E("race_entry", "top", 180), E("race", "bottom", 180), "", 20);
+edge(E("race_entry", "left", "status_code"), E("entry_status", "bottom", 150), "결과 상태", 120);
+edge(E("race_payout", "left", "race_id"), E("race", "right", "race_id"), "확정 배당", 40);
+edge(E("race_payout", "top", 165), E("bet_pool", "bottom", 150), "승식", 40);
+edge(E("race_odds", "top", 160), E("bet_pool", "bottom", 250), "", 60);
+edge(E("race_odds", "left", "race_id"), E("race", "top", 300), "모든 조합 배당", 90);
+edge(E("race_split", "left", "race_id"), E("race", "right", "prize"), "", 40);
+edge(E("race_corner_order", "left", "race_id"), E("race", "right", "track_state"), "", 40);
+edge(E("entry_checkpoint", "left", "race_id"), E("race_entry", "right", "race_id"), "지점 기록", 40);
+edge(E("entry_career_snapshot", "left", "race_id"), E("race_entry", "right", "finish_pos"), "경주 시점 성적", 40);
+edge(E("entry_change", "left", "race_id"), E("race_entry", "right", "s1f"), "변경", 40);
+// 사람·말 → 출전
+edge(E("race_entry", "left", "jk_no"), E("jockey", "right", "jk_no"), "기승", 70);
+edge(E("race_entry", "left", "tr_no"), E("trainer", "right", "tr_no"), "", 70);
+edge(E("race_entry", "left", "hr_no"), E("horse", "right", "hr_no"), "출전", 60);
+edge(E("race_entry", "left", "ow_no"), E("owner", "right", "ow_no"), "", 70);
+// 말 → 관리·소유, 이력
+edge(E("horse", "left", "trainer_no"), E("trainer", "left", "tr_no"), "", 45);
+edge(E("horse", "left", "owner_no"), E("owner", "left", "ow_no"), "", 45);
+edge(E("horse_rating_history", "left", "hr_no"), E("horse", "left", "hr_no"), "", 40);
+edge(E("horse_treatment", "left", "hr_no"), E("horse", "left", "sex"), "", 34);
+
+cv.insertAdjacentHTML("beforeend", `
+<div class="future" style="left:1360px;top:430px;width:290px">
+  <b>이후 추가: 서비스 도메인</b>
+  app_user · point_ledger(포인트 거래)<br>purchase(구매) · purchase_line(베팅 라인)<br>settlement(정산)<br><br>
+  purchase_line은 race.race_id와 출주번호 조합을 가리킨다. 경주 쪽 키가 고정되어 있어 racing 스키마는 바꾸지 않는다.
+</div>
+<div class="legend" style="left:1360px;top:660px">
+  <div><i style="background:var(--ref)"></i>참조 데이터</div>
+  <div><i style="background:var(--master)"></i>사람·말 (최신 정보)</div>
+  <div><i style="background:var(--core)"></i>경주·출전 (핵심)</div>
+  <div><i style="background:var(--child)"></i>경주·출전 상세 기록</div>
+  
+  <div style="margin-top:10px">PK 기본키 · UK 유일키 · FK 참조키</div>
+</div>`);
+</script>
+</body></html>
