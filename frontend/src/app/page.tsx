@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import AppHeader from "@/components/AppHeader";
 
 interface Race {
   id: string;
@@ -159,8 +158,7 @@ export default function HomePage() {
 
   return (
     <div data-page="home" className="landing-root">
-      <SiteHeader onRaceViewChange={handleViewChange} />
-
+      <AppHeader />
       <main>
         {/* Hero Section */}
         <section className="hero" aria-labelledby="heroTitle">
@@ -870,7 +868,52 @@ export default function HomePage() {
         </section>
       </main>
 
-      <SiteFooter onRacesClick={() => handleViewChange("upcoming")} />
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-upper">
+            <div>
+              <Link className="brand brand-white" href="/">
+                <span className="brand-emblem">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </span>
+                <span className="brand-word">
+                  TRACK<span>:ON</span>
+                </span>
+              </Link>
+              <p>
+                경주 정보를 이해하고 예측의 즐거움을 경험하는
+                <br />
+                가상 포인트 기반 모의베팅 플랫폼.
+              </p>
+            </div>
+            <div className="footer-nav">
+              <div>
+                <span>PLATFORM</span>
+                <a href="#races" onClick={() => handleViewChange("upcoming")}>
+                  경주정보
+                </a>
+                <a href="#modes">모의베팅</a>
+                <a href="#ranking">랭킹</a>
+              </div>
+              <div>
+                <span>SUPPORT</span>
+                <Link href="/tutorial">이용가이드</Link>
+                <a href="#points">포인트 정책</a>
+                <a href="#faq">자주 묻는 질문</a>
+              </div>
+            </div>
+          </div>
+          <div className="footer-lower">
+            <p>
+              © 2026 TRACK:ON. 비공식 프런트엔드 프로토타입 · API, Google 로그인, 베팅 제출, 포인트 적립 미연동. 실제 마권 및 현금 거래 없음.
+            </p>
+            <span>MADE FOR THE RACE / 2026</span>
+          </div>
+        </div>
+      </footer>
 
       {/* Race Detail Modal */}
       <div

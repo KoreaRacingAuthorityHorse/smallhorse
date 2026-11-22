@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import SiteHeader from "@/components/SiteHeader";
+import AppHeader from "@/components/AppHeader";
 import SiteFooter from "@/components/SiteFooter";
 import RaceTab from "./_components/RaceTab";
 import PeopleTab from "./_components/PeopleTab";
@@ -37,7 +37,7 @@ export default function RaceDataPage() {
 
   return (
     <div data-page="race-data" className="landing-root">
-      <SiteHeader />
+      <AppHeader active="race-data" />
 
       <main>
         <section className="rd-hero">
@@ -70,3 +70,4 @@ export default function RaceDataPage() {
     </div>
   );
 }
+
