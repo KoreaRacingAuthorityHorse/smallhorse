@@ -41,6 +41,10 @@ public class User {
     @Column(name = "provider_id", nullable = false, length = 100)
     private String providerId;
 
+    /** 자체 가입(LOCAL) 전용 BCrypt 해시. 소셜 회원은 null. 평문 저장 금지. */
+    @Column(name = "password_hash", length = 100)
+    private String passwordHash;
+
     @Column(nullable = false, length = 255)
     private String email;
 
@@ -90,6 +94,13 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    /** 자체 가입 회원 생성. passwordHash 는 반드시 인코딩된 값을 넘긴다. */
+    public static User createLocal(String loginId, String passwordHash, String email, String name) {
+        User user = new User(Provider.LOCAL, loginId, email, name, null);
+        user.passwordHash = passwordHash;
+        return user;
+    }
+
     /** 로그인할 때마다 소셜 쪽 최신 정보로 갱신 */
     public void updateFromSocial(String email, String name, String profileImageUrl) {
         this.email = email;
@@ -105,6 +116,7 @@ public class User {
     public Long getId() { return id; }
     public Provider getProvider() { return provider; }
     public String getProviderId() { return providerId; }
+    public String getPasswordHash() { return passwordHash; }
     public String getEmail() { return email; }
     public String getName() { return name; }
     public String getNickname() { return nickname; }
