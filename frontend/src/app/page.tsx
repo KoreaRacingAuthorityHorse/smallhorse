@@ -29,11 +29,9 @@ const sampleRaces: Race[] = [
 export default function HomePage() {
   const [raceType, setRaceType] = useState<"upcoming" | "past">("upcoming");
   const [venue, setVenue] = useState<string>("all");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedRace, setSelectedRace] = useState<Race | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const navShellRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const trackFillRef = useRef<HTMLSpanElement>(null);
   const journeySectionRef = useRef<HTMLElement>(null);
@@ -43,25 +41,11 @@ export default function HomePage() {
     setIsModalOpen(false);
   }, []);
 
-  // Close dropdown details when clicking outside or pressing Escape
+  // Close modal on Escape and keep focus inside it
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (navShellRef.current && !navShellRef.current.contains(e.target as Node)) {
-        const detailsList = navShellRef.current.querySelectorAll("details");
-        detailsList.forEach((d) => (d.open = false));
-      }
-    }
-
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        setMobileMenuOpen(false);
-        if (navShellRef.current) {
-          const detailsList = navShellRef.current.querySelectorAll("details");
-          detailsList.forEach((d) => (d.open = false));
-        }
-        if (isModalOpen) {
-          closeModal();
-        }
+      if (e.key === "Escape" && isModalOpen) {
+        closeModal();
       }
 
       if (isModalOpen && modalRef.current && e.key === "Tab") {
@@ -82,10 +66,8 @@ export default function HomePage() {
       }
     }
 
-    document.addEventListener("click", handleClickOutside);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isModalOpen, closeModal]);
@@ -169,28 +151,9 @@ export default function HomePage() {
 
   const raceName = (r: Race) => `${r.venue} 제${Number(r.round)}경주`;
 
-  const handleDropdownToggle = (e: React.SyntheticEvent<HTMLDetailsElement>) => {
-    const target = e.currentTarget;
-    if (target.open && navShellRef.current) {
-      const allDetails = navShellRef.current.querySelectorAll("details");
-      allDetails.forEach((d) => {
-        if (d !== target) d.open = false;
-      });
-    }
-  };
-
-  const closeDropdownsAndMenu = () => {
-    if (navShellRef.current) {
-      const allDetails = navShellRef.current.querySelectorAll("details");
-      allDetails.forEach((d) => (d.open = false));
-    }
-    setMobileMenuOpen(false);
-  };
-
   const handleViewChange = (type: "upcoming" | "past") => {
     setRaceType(type);
     setVenue("all");
-    closeDropdownsAndMenu();
   };
 
   return (

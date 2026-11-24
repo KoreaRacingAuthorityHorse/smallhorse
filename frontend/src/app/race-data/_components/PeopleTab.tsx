@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { MEET_NAMES, PEOPLE, tier, type Person, type RecentRun } from "../_lib/data";

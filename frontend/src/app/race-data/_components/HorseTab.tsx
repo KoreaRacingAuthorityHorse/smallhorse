@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { HORSE_LIST, MEET_NAMES, pct, tier, wonBig, type Horse } from "../_lib/data";

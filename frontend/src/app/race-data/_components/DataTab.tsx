@@ -1,4 +1,4 @@
-﻿import { FIELDS, SOURCES } from "../_lib/data";
+import { FIELDS, SOURCES } from "../_lib/data";
 
 const TAG_CLASS = { 사전: "pre", 결과: "res", 누적: "acc" } as const;
 

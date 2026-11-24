@@ -1,4 +1,4 @@
-﻿/* 경주데이터 목업: 시드 기반 가상 데이터 (서버·클라이언트 렌더 결과가 같도록 Math.random 미사용) */
+/* 경주데이터 목업: 시드 기반 가상 데이터 (서버·클라이언트 렌더 결과가 같도록 Math.random 미사용) */
 
 export type MeetId = 1 | 2 | 3;
 export const MEETS: Record<MeetId, string> = { 1: "서울", 2: "제주", 3: "부산경남" };
